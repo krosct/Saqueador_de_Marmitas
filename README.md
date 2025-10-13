@@ -36,13 +36,13 @@ O programa demonstra visualmente a "inteligência" do algoritmo, destacando os n
 
 ## 👥 Nossa Equipe
 
-| Nome do Integrante | GitHub                                |
-| ------------------ | ------------------------------------- |
-| Davi Brilhante  | [Link](https://github.com/Davi-SB)     |
-| Gabriel Monteiro  | [Link](https://github.com/krosct)     |
-| Heitor Higino  | [Link](https://placebacon.net/400/300)     |
-| Henrique César  | [Link](https://github.com/SapoSopa)     |
-| João Pedro  | [Link](https://placebacon.net/400/300)     |
+| Nome do Integrante | Atividade | GitHub |
+| --- | --- | --- |
+| Davi Brilhante | Grid e Node | [Link](https://github.com/Davi-SB) |
+| Gabriel Monteiro | Animação e Lógica | [Link](https://github.com/krosct) |
+| Heitor Higino | Lorem ipsum | [Link](https://placebacon.net/400/300) |
+| Henrique César | Lorem ipsum | [Link](https://github.com/SapoSopa) |
+| João Pedro | BFS, DFS e Heurísticas | [Link](https://placebacon.net/400/300) |
 
 ## 📂 Estrutura do Projeto
 
