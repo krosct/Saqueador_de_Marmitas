@@ -65,18 +65,18 @@
 
 **Foco:** Implementar a estrutura de dados `PriorityQueue` e os algoritmos de busca informada baseados em custo.
 
--   `[ ]` **Módulo `PriorityQueue.js`**
-    -   `[ ]` Criar e implementar a classe `PriorityQueue`.
-    -   `[ ]` A fila deve ser capaz de ordenar os nós com base em uma prioridade (como custo `g` ou `f`).
+-   `[x]` **Módulo `PriorityQueue.js`**
+    -   `[x]` Criar e implementar a classe `PriorityQueue`.
+    -   `[x]` A fila deve ser capaz de ordenar os nós com base em uma prioridade (como custo `g` ou `f`).
 
--   `[ ]` **Módulo `search.js` (Buscas de Custo)**
-    -   `[ ]` Implementar o algoritmo **Custo Uniforme (UCS)**.
-        -   `[ ]` Utilizar a `PriorityQueue` para ordenar os nós pelo menor custo `g`.
-        -   `[ ]` Garantir que a função retorne `{ finalPath, gridHistory }`.
-    -   `[ ]` Implementar o algoritmo **Gulosa (Greedy Best-First Search)**.
-        -   `[ ]` Utilizar a `PriorityQueue` para ordenar os nós pelo menor valor da heurística `h`.
-        -   `[ ]` A função deve aceitar uma função de heurística como parâmetro.
-        -   `[ ]` Garantir que a função retorne `{ finalPath, gridHistory }`.
+-   `[x]` **Módulo `search.js` (Buscas de Custo)**
+    -   `[x]` Implementar o algoritmo **Custo Uniforme (UCS)**.
+        -   `[x]` Utilizar a `PriorityQueue` para ordenar os nós pelo menor custo `g`.
+        -   `[x]` Garantir que a função retorne `{ finalPath, gridHistory }`.
+    -   `[x]` Implementar o algoritmo **Gulosa (Greedy Best-First Search)**.
+        -   `[x]` Utilizar a `PriorityQueue` para ordenar os nós pelo menor valor da heurística `h`.
+        -   `[x]` A função deve aceitar uma função de heurística como parâmetro.
+        -   `[x]` Garantir que a função retorne `{ finalPath, gridHistory }`.
 
 ## Integrante 5: Heitor Cordeiro
 
