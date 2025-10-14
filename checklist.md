@@ -4,23 +4,23 @@
 
 **Foco:** Construir a fundação do mundo do agente: a estrutura de dados do grid, dos nós e dos terrenos.
 
--   `[ ]` **Módulo `terrain.js`**
-    -   `[ ]` Criar o arquivo `terrain.js`.
-    -   `[ ]` Definir e exportar o `enum` **Terrain**, contendo as propriedades `name`, `cost`, `color` e `isObstacle` para cada tipo de terreno (SAND, SWAMP, WATER, OBSTACLE).
+-   `[X]` **Módulo `terrain.js`**
+    -   `[X]` Criar o arquivo `terrain.js`.
+    -   `[X]` Definir e exportar o `enum` **Terrain**, contendo as propriedades `name`, `cost`, `color` e `isObstacle` para cada tipo de terreno (SAND, SWAMP, WATER, OBSTACLE).
 
--   `[ ]` **Módulo `Node.js`**
-    -   `[ ]` Criar a classe `Node`.
-    -   `[ ]` Implementar o construtor com as propriedades básicas (`x`, `y`).
-    -   `[ ]` Adicionar a propriedade `terrain` que recebe um valor do `enum` **Terrain**.
-    -   `[ ]` Adicionar a propriedade `state` para controle visual (iniciando como `'default'`).
-    -   `[ ]` Adicionar as propriedades para os algoritmos de busca (`parent`, `g`, `h`, `f`).
+-   `[X]` **Módulo `Node.js`**
+    -   `[X]` Criar a classe `Node`.
+    -   `[X]` Implementar o construtor com as propriedades básicas (`x`, `y`).
+    -   `[X]` Adicionar a propriedade `terrain` que recebe um valor do `enum` **Terrain**.
+    -   `[X]` Adicionar a propriedade `state` para controle visual (iniciando como `'default'`).
+    -   `[X]` Adicionar as propriedades para os algoritmos de busca (`parent`, `g`, `h`, `f`).
 
--   `[ ]` **Módulo `Grid.js`**
-    -   `[ ]` Criar a estrutura básica da classe `Grid` em `Grid.js`.
-    -   `[ ]` Implementar o método `generateRealisticMap()` utilizando **Ruído de Perlin (noise())** para distribuir os terrenos definidos no `enum`.
-    -   `[ ]` Implementar o método `getNeighbors(node)` que retorna um array de nós vizinhos válidos (não-obstáculos).
-    -   `[ ]` Implementar o método `clone()` que realiza uma cópia profunda (deep copy) de toda a estrutura do grid e de seus nós.
-    -   `[ ]` Implementar o método `draw()` que lê o `node.state` e o `node.terrain.color` para desenhar cada célula do grid.
+-   `[X]` **Módulo `Grid.js`**
+    -   `[X]` Criar a estrutura básica da classe `Grid` em `Grid.js`.
+    -   `[X]` Implementar o método `generateRealisticMap()` utilizando **Ruído de Perlin (noise())** para distribuir os terrenos definidos no `enum`.
+    -   `[X]` Implementar o método `getNeighbors(node)` que retorna um array de nós vizinhos válidos (não-obstáculos).
+    -   `[X]` Implementar o método `clone()` que realiza uma cópia profunda (deep copy) de toda a estrutura do grid e de seus nós.
+    -   `[X]` Implementar o método `draw()` que lê o `node.state` e o `node.terrain.color` para desenhar cada célula do grid.
 
 ## Integrante 2: Gabriel Monteiro
 
