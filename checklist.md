@@ -61,7 +61,7 @@
     -   `[ ]` Implementar o algoritmo **DFS (Busca em Profundidade)**.
         -   `[ ]` Garantir que a função também retorne `{ finalPath, gridHistory }`.
 
-## Integrante 4: ???
+## Integrante 4: Henrique César
 
 **Foco:** Implementar a estrutura de dados `PriorityQueue` e os algoritmos de busca informada baseados em custo.
 
@@ -78,7 +78,7 @@
         -   `[ ]` A função deve aceitar uma função de heurística como parâmetro.
         -   `[ ]` Garantir que a função retorne `{ finalPath, gridHistory }`.
 
-## Integrante 5: ???
+## Integrante 5: Heitor Cordeiro
 
 **Foco:** Implementar o algoritmo de busca mais complexo (A*) e criar toda a interface de usuário para controlar a aplicação.
 
