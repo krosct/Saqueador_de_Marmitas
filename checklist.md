@@ -26,21 +26,21 @@
 
 **Foco:** Orquestrar o fluxo do programa, gerenciar o estado e dar vida à animação e ao agente.
 
--   `[ ]` **Configuração do `sketch.js`**
-    -   `[ ]` Criar as variáveis globais para `grid`, `agent`, `food`, e estado da aplicação (ex: `currentGameState`).
-    -   `[ ]` Implementar a função `setup()`, instanciando os objetos principais.
-    -   `[ ]` Estruturar a função `draw()` para chamar os métodos de desenho e atualização corretos com base no estado do jogo.
+-   `[X]` **Configuração do `sketch.js`**
+    -   `[X]` Criar as variáveis globais para `grid`, `agent`, `food`, e estado da aplicação (ex: `currentGameState`).
+    -   `[X]` Implementar a função `setup()`, instanciando os objetos principais.
+    -   `[X]` Estruturar a função `draw()` para chamar os métodos de desenho e atualização corretos com base no estado do jogo.
 
--   `[ ]` **Lógica de Animação da Busca**
-    -   `[ ]` Implementar a lógica que recebe o `gridHistory` de uma função de busca.
-    -   `[ ]` No `draw()`, iterar sobre o `gridHistory` (um grid por frame) para exibir a animação passo a passo da busca.
+-   `[X]` **Lógica de Animação da Busca**
+    -   `[X]` Implementar a lógica que recebe o `gridHistory` de uma função de busca.
+    -   `[X]` No `draw()`, iterar sobre o `gridHistory` (um grid por frame) para exibir a animação passo a passo da busca.
 
--   `[ ]` **Módulo `Agent.js` e `Food.js`**
-    -   `[ ]` Implementar a classe `Agent` com posição e método `draw()`.
-    -   `[ ]` Implementar a classe `Food` com posição e método `draw()`.
-    -   `[ ]` No `Agent`, implementar o método `setPath(path)` para receber o caminho final.
+-   `[X]` **Módulo `Agent.js` e `Food.js`**
+    -   `[X]` Implementar a classe `Agent` com posição e método `draw()`.
+    -   `[X]` Implementar a classe `Food` com posição e método `draw()`.
+    -   `[X]` No `Agent`, implementar o método `setPath(path)` para receber o caminho final.
     -   `[ ]` Implementar a lógica de movimento do agente ao longo do caminho, com velocidade variável baseada em `currentNode.terrain.cost`.
-    -   `[ ]` Implementar a detecção de colisão entre o agente e a comida.
+    -   `[X]` Implementar a detecção de colisão entre o agente e a comida.
 
 -   `[ ]` **Gerenciamento de Estado**
     -   `[ ]` Garantir que, ao selecionar um novo algoritmo no menu, a busca seja re-executada no **mesmo mapa**, limpando apenas o resultado da busca anterior.
