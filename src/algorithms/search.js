@@ -1,5 +1,106 @@
 
 /**
+ * Executa a busca em largura (BFS) para encontrar o caminho mais curto em número de passos
+ * @param {Grid} initialGrid - O grid inicial do jogo
+ * @param {Node} startNode - O nó inicial
+ * @param {Node} goalNode - O nó objetivo
+ * @returns {Object} Objeto contendo o caminho final e histórico de estados
+ */
+function breadthFirstSearch(initialGrid, startNode, goalNode) {
+    if (!initialGrid || !startNode || !goalNode) {
+        throw new Error('Parâmetros inválidos: grid, nó inicial e nó objetivo são obrigatórios');
+    }
+
+    const gridHistory = [];
+    const frontier = [startNode];  // Usando array como fila
+    const explored = new Set();
+    
+    // Marca o nó inicial como fronteira no primeiro grid
+    const initialGridCopy = initialGrid.copy();
+    initialGridCopy.getNode(startNode.x, startNode.y).state = 'frontier';
+    gridHistory.push(initialGridCopy);
+
+    while (frontier.length > 0) {
+        const current = frontier.shift();  // Remove o primeiro elemento (FIFO)
+        
+        if (current === goalNode) {
+            const finalPath = reconstructPath(current);
+            return { finalPath, gridHistory };
+        }
+
+        explored.add(current);
+        
+        for (const neighbor of initialGrid.getNeighbors(current)) {
+            if (!explored.has(neighbor) && !frontier.includes(neighbor)) {
+                neighbor.parent = current;
+                frontier.push(neighbor);
+
+                // Cria uma nova cópia do grid para este passo
+                const newGrid = initialGrid.copy();
+                newGrid.getNode(neighbor.x, neighbor.y).state = 'frontier';
+                newGrid.getNode(current.x, current.y).state = 'visited';
+                gridHistory.push(newGrid);
+            }
+        }
+    }
+
+    return { finalPath: [], gridHistory };
+}
+
+/**
+ * Executa a busca em profundidade (DFS) para encontrar um caminho até o objetivo
+ * @param {Grid} initialGrid - O grid inicial do jogo
+ * @param {Node} startNode - O nó inicial
+ * @param {Node} goalNode - O nó objetivo
+ * @returns {Object} Objeto contendo o caminho final e histórico de estados
+ */
+function depthFirstSearch(initialGrid, startNode, goalNode) {
+    if (!initialGrid || !startNode || !goalNode) {
+        throw new Error('Parâmetros inválidos: grid, nó inicial e nó objetivo são obrigatórios');
+    }
+
+    const gridHistory = [];
+    const frontier = [startNode];  // Usando array como pilha
+    const explored = new Set();
+    
+    // Marca o nó inicial como fronteira no primeiro grid
+    const initialGridCopy = initialGrid.copy();
+    initialGridCopy.getNode(startNode.x, startNode.y).state = 'frontier';
+    gridHistory.push(initialGridCopy);
+
+    while (frontier.length > 0) {
+        const current = frontier.pop();  // Remove o último elemento (LIFO)
+        
+        if (current === goalNode) {
+            const finalPath = reconstructPath(current);
+            return { finalPath, gridHistory };
+        }
+
+        if (!explored.has(current)) {
+            explored.add(current);
+            
+            // Pega os vizinhos em ordem reversa para manter a direção de busca consistente
+            const neighbors = initialGrid.getNeighbors(current).reverse();
+            
+            for (const neighbor of neighbors) {
+                if (!explored.has(neighbor) && !frontier.includes(neighbor)) {
+                    neighbor.parent = current;
+                    frontier.push(neighbor);
+
+                    // Cria uma nova cópia do grid para este passo
+                    const newGrid = initialGrid.copy();
+                    newGrid.getNode(neighbor.x, neighbor.y).state = 'frontier';
+                    newGrid.getNode(current.x, current.y).state = 'visited';
+                    gridHistory.push(newGrid);
+                }
+            }
+        }
+    }
+
+    return { finalPath: [], gridHistory };
+}
+
+/**
  * Executa a busca de custo uniforme (UCS) para encontrar o caminho mais "barato"
  * @param {Grid} initialGrid - O grid inicial do jogo
  * @param {Node} startNode - O nó inicial
