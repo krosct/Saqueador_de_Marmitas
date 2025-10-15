@@ -1,5 +1,3 @@
-import { PriorityQueue } from './PriorityQueue.js';
-import { manhattanDistance, euclideanDistance } from './heuristics.js';
 
 /**
  * Executa a busca de custo uniforme (UCS) para encontrar o caminho mais "barato"
@@ -128,5 +126,3 @@ function reconstructPath(node) {
     
     return path;
 }
-
-export { uniformCostSearch, greedyBestFirstSearch };
