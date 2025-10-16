@@ -140,7 +140,9 @@ function uniformCostSearch(initialGrid, startNode, goalNode) {
                 neighbor.parent = current;
                 frontier.enqueue(neighbor, newG);
 
-                const newGrid = initialGrid.copy();
+                // const newGrid = initialGrid.copy();
+                const lastGrid = gridHistory[gridHistory.length - 1]; 
+                const newGrid = lastGrid.copy();
                 newGrid.getNode(neighbor.x, neighbor.y).state = 'frontier';
                 newGrid.getNode(current.x, current.y).state = 'visited';
                 gridHistory.push(newGrid);
