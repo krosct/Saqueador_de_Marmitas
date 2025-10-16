@@ -40,8 +40,8 @@ O programa demonstra visualmente a "inteligência" do algoritmo, destacando os n
 | --- | --- | --- |
 | Davi Brilhante | Grid e Node | [Link](https://github.com/Davi-SB) |
 | Gabriel Monteiro | Animação e Lógica | [Link](https://github.com/krosct) |
-| Heitor Higino | Lorem ipsum | [Link](https://placebacon.net/400/300) |
-| Henrique César | Lorem ipsum | [Link](https://github.com/SapoSopa) |
+| Heitor Higino | Algoritmo A* e Menu | [Link](https://placebacon.net/400/300) |
+| Henrique César | Algoritmos de Busca Gulosos e Uniformes | [Link](https://github.com/SapoSopa) |
 | João Pedro | BFS, DFS e Heurísticas | [Link](https://placebacon.net/400/300) |
 
 ## 📂 Estrutura do Projeto
@@ -49,18 +49,35 @@ O programa demonstra visualmente a "inteligência" do algoritmo, destacando os n
 O projeto está organizado na seguinte estrutura de pastas:
 
 ```
-├─📁Saqueador_de_Marmitas/
-|  ├──📁docs/
-|  └──📁src/
-|      ├──📁algorithms/
-|      └──📁core/
-├──📄.gitignore
-├──📄CONTRIBUTING.md
-├──📄index.html
-├──📄INSTRUCTIONS.md
-├──📄LICENCE
-├──📄README.md
-└──📄style.css
+─>📁Saqueador_de_Marmitas/
+   ├──📁docs/
+   |   └──📄DOCUMENTATION.md
+   ├──📁src/
+   |   ├──📁algorithms/
+   |   |   ├──📄heuristics.js
+   |   |   ├──📄PriorityQueue.js
+   |   |   └──📄search.js
+   |   ├──📁img/
+   |   |   └──📄several_imgs.png [...]
+   |   ├──📁modules/
+   |   |   ├──📄Agent.js
+   |   |   ├──📄Food.js
+   |   |   ├──📄Grid.js
+   |   |   ├──📄Node.js
+   |   |   ├──📄terrain.js
+   |   ├──📄sketch.js
+   |   └──📄style.css
+   ├──📁tests/
+   |   └──📄several_tests.* [...]
+   ├──📄.gitignore
+   ├──📄checklist.md
+   ├──📄CONTRIBUTING.md
+   ├──📄index.html
+   ├──📄INSTRUCTIONS.md
+   ├──📄jsconfig.json
+   ├──📄LICENCE
+   ├──📄README.md
+   └──📄teamManagement.md
 ```
 
 ## 🚀 Guia de Execução
