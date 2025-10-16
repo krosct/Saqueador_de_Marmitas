@@ -7,11 +7,11 @@ class Food {
      * @param {number} gridX A posição X da comida no grid (coluna).
      * @param {number} gridY A posição Y da comida no grid (linha).
      * @param {number} size O tamanho em que a imagem/forma da comida será desenhada.
+     * @param {p5.Image} img A imagem para desenhar a comida.
      */
     constructor(gridX, gridY, size, img) {
-        // Armazena a posição no grid como um vetor p5.js.
-        this.gridPos = createVector(gridX, gridY);
-        this.size = size;
+        this.pos = createVector(gridX, gridY);
+        this.size = size - 5;
         this.img = img;
     }
 
@@ -21,14 +21,20 @@ class Food {
      */
     show() {
         // Converte a posição do grid para a coordenada central em pixels.
-        const pixelX = gridToPixel(this.gridPos.x);
-        const pixelY = gridToPixel(this.gridPos.y);
-        
-        imageMode(CENTER);
-        image(this.img, pixelX, pixelY, this.size, this.size);
+        if (cbDebugMode.checked()) {
+            fill(200, 200, 0);
+            square(this.pos.x * cellSize, this.pos.y * cellSize, cellSize);
+        } else {
+            image(this.img, gridToPixel(this.pos.x), gridToPixel(this.pos.y), this.size, this.size);
+        }
     }
 
+    /**
+     * Retorna o nó do grid em que a comida  está logicamente.
+     * @param {Grid} grid O objeto grid.
+     * @returns {Node} A célula/nó atual.
+     */
     node(grid) {
-        return grid.grid[this.gridPos.y][this.gridPos.x];
+        return grid.grid[this.pos.y][this.pos.x];
     }
 }
