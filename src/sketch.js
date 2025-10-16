@@ -5,10 +5,10 @@
 const cellSize = 70; // Tamanho de cada célula do grid em pixels.
 
 /** @type {number} @const */
-const cols = 12; // Número de colunas no grid.
+const cols = 19; // Número de colunas no grid.
 
 /** @type {number} @const */
-const rows = 9; // Número de linhas no grid.
+const rows = 10; // Número de linhas no grid.
 
 /** @type {number} @const */
 const defaultDelayTime = 1000; // Atraso padrão para animações (em milissegundos). Quanto maior mais rápido.

@@ -23,36 +23,69 @@ class Grid {
     /**
      * Fills the grid with Node objects, assigning a terrain type to each
      * using Perlin Noise for a natural, smooth look.
+     * This method uses a two-phase approach:
+     * 1. Base terrain (water, swamp, sand) - highly clustered using low-frequency noise
+     * 2. Obstacles - more dispersed using high-frequency noise
      */
     generateMap() {
-        // The scale factor determines the "zoom" level of the noise.
-        // Smaller values create larger, smoother landmasses.
-        // Larger values create more chaotic, detailed terrain.
-        const scale = 0.1;
+        // PHASE 1: Generate base terrain (water, swamp, sand) with high clustering
+        // Low scale = larger, smoother, more clustered areas
+        const terrainScale = 0.1;
+        
+        // Use a random offset to vary the noise pattern each time
+        const terrainOffsetX = 0; //random(1000);
+        const terrainOffsetY = 0; //random(1000);
 
         for (let y = 0; y < this.rows; y++) {
             this.grid[y] = []; // Initialize the row
             for (let x = 0; x < this.cols; x++) {
-                // p5.js's built-in noise() function generates a value between 0 and 1.
-                const noiseValue = noise(x * scale, y * scale);
+                // Generate smooth, clustered base terrain
+                const terrainNoise = noise(
+                    (x * terrainScale) + terrainOffsetX,
+                    (y * terrainScale) + terrainOffsetY
+                );
                 
                 let terrainType;
 
-                // Map the noise value to a specific terrain type.
-                // These thresholds can be adjusted to change the map's appearance
-                // (e.g., more water, fewer obstacles).
-                if (noiseValue < 0.3) {
+                // Map noise to base terrain types (no obstacles yet)
+                // Adjusted thresholds to create more balanced terrain distribution
+                if (terrainNoise < 0.3) {
                     terrainType = Terrain.WATER;
-                } else if (noiseValue < 0.4) {
+                } else if (terrainNoise < 0.4) {
                     terrainType = Terrain.SWAMP;
-                } else if (noiseValue < 0.6) {
-                    terrainType = Terrain.SAND;
                 } else {
-                    terrainType = Terrain.OBSTACLE;
+                    terrainType = Terrain.SAND;
                 }
                 
-                // Create a new Node with the determined terrain.
+                // Create the node with base terrain
                 this.grid[y][x] = new Node(x, y, terrainType);
+            }
+        }
+
+        // PHASE 2: Add obstacles as a separate layer with more dispersion
+        // Higher scale = smaller, more scattered, dispersed patterns
+        const obstacleScale = 0.4;
+        const obstacleOffsetX = random(1000);
+        const obstacleOffsetY = random(1000);
+        
+        // Obstacle density threshold - adjust this to control obstacle quantity
+        // Higher threshold = fewer obstacles
+        const obstacleThreshold = 0.6;
+
+        for (let y = 0; y < this.rows; y++) {
+            for (let x = 0; x < this.cols; x++) {
+                // Generate dispersed obstacle pattern
+                const obstacleNoise = noise(
+                    (x * obstacleScale) + obstacleOffsetX,
+                    (y * obstacleScale) + obstacleOffsetY
+                );
+                
+                // Only place obstacles where noise exceeds threshold
+                // This creates a more scattered, dispersed distribution
+                if (obstacleNoise > obstacleThreshold) {
+                    // Replace the existing terrain with an obstacle
+                    this.grid[y][x].terrain = Terrain.OBSTACLE;
+                }
             }
         }
     }
