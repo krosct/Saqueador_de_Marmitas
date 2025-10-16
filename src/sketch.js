@@ -1,430 +1,854 @@
 
 // * --- CONFIGURAÇÕES DO USUÁRIO ---
-/** @type {number} @const */
-const cellSize = 70;
 
 /** @type {number} @const */
-const cols = 12;
+const cellSize = 70; // Tamanho de cada célula do grid em pixels.
 
 /** @type {number} @const */
-const rows = 9;
+const cols = 12; // Número de colunas no grid.
 
 /** @type {number} @const */
-const delayTime = 100;
+const rows = 9; // Número de linhas no grid.
+
+/** @type {number} @const */
+const defaultDelayTime = 1000; // Atraso padrão para animações (em milissegundos). Quanto maior mais rápido.
+
+/** @type {number} @const */
+const maxDelayTime = 1500; // Atraso máximo permitido no slider.
+
+/** @type {number} @const */
+const minDelayTime = 1; // Atraso mínimo permitido no slider.
+
+/** @type {boolean} */
+let newMap = true; // Flag para indicar se um novo mapa deve ser gerado.
+
+// * --- IMAGENS DO PROETO ---
+
+// ? --- Variáveis para as imagens padrão/atuais ---
+/** @type {p5.Image} */
+let defaultAgentImg; // Imagem padrão (ou atual) do agente.
+/** @type {p5.Image} */
+let defaultFoodImg; // Imagem padrão (ou atual) da comida.
+/** @type {p5.Image} */
+let defaultExploredImg; // Imagem padrão (ou atual) para células exploradas.
+/** @type {p5.Image} */
+let defaultFrontierImg; // Imagem padrão (ou atual) para células na fronteira da busca.
+/** @type {p5.Image} */
+let defaultStepImg; // Imagem padrão (ou atual) para as pegadas do caminho.
+
+// ? --- Variáveis para a Skin 0 ("Grayilson") ---
+/** @type {p5.Image} */
+let agentImg0;
+/** @type {p5.Image} */
+let foodImg0;
+/** @type {p5.Image} */
+let exploredImg0;
+/** @type {p5.Image} */
+let frontierImg0;
+/** @type {p5.Image} */
+let stepImg10;
+
+// ? --- Variáveis para a Skin 1 ("Coloricleide") ---
+/** @type {p5.Image} */
+let agentImg1;
+/** @type {p5.Image} */
+let foodImg1;
+/** @type {p5.Image} */
+let exploredImg1;
+/** @type {p5.Image} */
+let frontierImg1;
+/** @type {p5.Image} */
+let stepImg1;
 
 // * --- VARIÁVEIS GLOBAIS DO PROJETO ---
-let foodImg, agentImg;
-let grid;
-let agent, food;
-let startTime;
 
-let visitedCells;
-let visitedIndex;
+// ? --- Variáveis para o agente, a comida e o terreno ---
+/** @type {Grid} */
+let grid; // Objeto que representa o grid do jogo.
+/** @type {Agent} */
+let agent; // Objeto que representa o agente (personagem).
+/** @type {Food} */
+let food; // Objeto que representa a comida.
+/** @type {number} */
+let startTime; // Armazena o tempo (em milissegundos) para controlar animações.
 
-let pathCells;
-let pathIndex;
+// ? --- Variáveis para a animação da busca e do caminho ---
+/** @type {Array<Object>} */
+let snapshots; // Array com os "snapshots" do estado do grid durante a busca.
+/** @type {number} */
+let snapshotIndex; // Índice do snapshot atual a ser desenhado.
+/** @type {Array<Node>} */
+let pathToFood; // Array de nós que representa o caminho encontrado até a comida.
+/** @type {number} */
+let pathIndex; // Índice do passo atual no caminho a ser desenhado.
+/** @type {Array<number>} */
+let stepRotation; // Array com os ângulos de rotação para cada pegada no caminho.
 
-let frontierCells;
-let frontierIndex;
+// ? --- Variáveis de estado e controle do jogo ---
+/** @type {number} */
+let currentGameState; // Controla a máquina de estados principal do jogo.
+/** @type {Object} */
+let searchRegistry; // Armazena o resultado da última busca (caminho, histórico, etc.).
+/** @type {number} */
+let lootedFood; // Contador de quantas comidas foram coletadas.
+/** @type {Array<string>} */
+let invalidSpawns; // Array com nomes de terrenos onde objetos não podem ser criados.
+/** @type {boolean} */
+let isDragging = false; // Flag que indica se o agente está sendo arrastado pelo mouse.
+/** @type {p5.Vector} */
+let previousPos; // Armazena a posição anterior do agente antes de ser arrastado.
+/** @type {boolean} */
+let ERROR = false; // Flag global para indicar se ocorreu um erro crítico.
 
-let steppedCells;
-let steppedIndex;
+// ? --- Elementos de Interface (DOM) ---
+/** @type {p5.Element} */
+let canvas; // Referência ao canvas do p5.js.
+/** @type {p5.Element} */
+let cbPause; // Checkbox para pausar o jogo.
+/** @type {p5.Element} */
+let cbDebugMode; // Checkbox para ativar o modo de depuração.
+/** @type {p5.Element} */
+let btResetGame; // Botão para resetar o jogo.
+/** @type {p5.Element} */
+let lbSpeed; // Rótulo para o slider de velocidade.
+/** @type {p5.Element} */
+let slSpeed; // Slider para controlar a velocidade das animações.
+/** @type {p5.Element} */
+let btResetSpeed; // Botão para resetar a velocidade para o padrão.
+/** @type {p5.Element} */
+let btNewMap; // Botão para gerar um novo mapa.
+/** @type {p5.Element} */
+let ddAlgorithm; // Menu dropdown para selecionar o algoritmo de busca.
+/** @type {p5.Element} */
+let lbAlgorithm; // Rótulo para o dropdown de algoritmos.
+/** @type {p5.Element} */
+let lbSkin; // Rótulo para o dropdown de skins.
+/** @type {p5.Element} */
+let ddSkin; // Menu dropdown para selecionar a skin.
+/** @type {string} */
+let previuosSkin = '-1'; // Armazena a skin selecionada anteriormente para detectar mudanças.
+/** @type {Array<string>} */
+let searchAlgorithms = ['Uniform Cost', 'Greedy Best First']; // Nomes dos algoritmos disponíveis.
+/** @type {Array<string>} */
+let skins = ['Grayilson', 'Coloricleide']; // Nomes das skins disponíveis.
+/** @type {number} */
+let heightEtc = 0; // Variável auxiliar para posicionar elementos DOM verticalmente.
 
-let snapshots;
-let snapshotIndex;
+// ===================================================================================
+// FUNÇÕES DO CICLO DE VIDA DO P5.JS (PRELOAD, SETUP, DRAW)
+// ===================================================================================
 
-let currentGameState;
-let pathToFood;
-let searchRegistry;
-let lootedFood;
-
+/**
+ * Função do p5.js executada uma vez antes do setup.
+ * É usada para carregar assets externos, como imagens e sons, garantindo que
+ * estejam prontos antes do início do jogo.
+ */
 function preload() {
     // * Precarregamento das imagens que serão utilizadas na comida e no saqueador
-    agentImg = loadImage('src/img/saqueador3.png');
-    foodImg = loadImage('src/img/marmita.png');
+
+    // Pack Grayilson
+    agentImg0 = loadImage('src/img/agent1.png');
+    foodImg0 = loadImage('src/img/food1.png');
+    exploredImg0 = loadImage('src/img/explored1.png');
+    frontierImg0 = loadImage('src/img/frontier1.png');
+    stepImg10 = loadImage('src/img/step1.png');
+
+    // Pack Coloricleide
+    agentImg1 = loadImage('src/img/agent2.png');
+    foodImg1 = loadImage('src/img/food2.png');
+    exploredImg1 = loadImage('src/img/explored2.png');
+    frontierImg1 = loadImage('src/img/frontier2.png');
+    stepImg1 = loadImage('src/img/step2.png');
 }
 
-function createPair() {
-    const validSpots = [];
+/**
+ * Função do p5.js executada uma vez no início, após o preload.
+ * É usada para configurar o ambiente inicial, como o tamanho do canvas,
+ * criar objetos e inicializar variáveis.
+ */
+function setup() {
+    // Cria o canvas com as dimensões baseadas no grid.
+    canvas = createCanvas(cols * cellSize, rows * cellSize);
 
-    // 1. Percorre o grid uma vez para encontrar todos os locais válidos
-    for (let y = 0; y < grid.rows; y++) {
-        for (let x = 0; x < grid.cols; x++) {
-            if (grid.grid[y][x].terrain.name !== 'obstacle') {
-                validSpots.push({ x, y });
-            }
+    // Variável para posicionamento vertical dos elementos DOM.
+    heightEtc = 20;
+
+    // Cria e posiciona os elementos de interface (checkboxes, botões, sliders, etc.).
+    cbDebugMode = createCheckbox('Debug Mode', false);
+    cbDebugMode.position(width + 10, heightEtc);
+    heightEtc += 30;
+
+    cbPause = createCheckbox('Pause', false);
+    cbPause.position(width + 10, heightEtc);
+    heightEtc += 30;
+
+    btResetGame = createButton('Reset Game');
+    btResetGame.position(width + 10, heightEtc);
+    btResetGame.mousePressed(btResetGamePressed);
+    heightEtc += 30;
+
+    btNewMap = createButton('New Map');
+    btNewMap.position(width + 10, heightEtc);
+    btNewMap.mousePressed(btNewMapPressed);
+    heightEtc += 30;
+
+    btResetSpeed = createButton('Reset Speed');
+    btResetSpeed.position(width + 10, heightEtc);
+    btResetSpeed.mousePressed(btResetSpeedPressed);
+    heightEtc += 30;
+
+    lbSpeed = createP('Velocidade:');
+    lbSpeed.position(width + 10, heightEtc);
+    heightEtc += 30;
+
+    slSpeed = createSlider(minDelayTime, maxDelayTime, defaultDelayTime, 1);
+    slSpeed.position(width + 10, heightEtc);
+    heightEtc += 20;
+
+    lbAlgorithm = createP('Algoritmo de Busca:');
+    lbAlgorithm.position(width + 10, heightEtc);
+    heightEtc += 40;
+
+    ddAlgorithm = createSelect();
+    ddAlgorithm.position(width + 10, heightEtc);
+    for (let i = 0; i < searchAlgorithms.length; i++) {
+        ddAlgorithm.option(searchAlgorithms[i], i);
+    }
+    ddAlgorithm.disable('1'); // Desabilita temporariamente o algoritmo Greedy.
+    heightEtc += 30;
+
+    lbSkin = createP('Skins:');
+    lbSkin.position(width + 10, heightEtc);
+    heightEtc += 40;
+
+    ddSkin = createSelect();
+    ddSkin.position(width + 10, heightEtc);
+    for (let i = 0; i < skins.length; i++) {
+        ddSkin.option(skins[i], i);
+    }
+    heightEtc += 30;
+
+    // Define o modo de ângulo para graus e o ponto de referência das imagens para o centro.
+    angleMode(DEGREES);
+    imageMode(CENTER);
+
+    // Inicia o jogo pela primeira vez.
+    // Cria uma nova instância do grid.
+    btNewMapPressed();
+
+    // Define as imagens padrão iniciais para a skin 0.
+    defaultAgentImg = agentImg0;
+    defaultFoodImg = foodImg0;
+    defaultExploredImg = exploredImg0;
+    defaultFrontierImg = frontierImg0;
+    defaultStepImg = stepImg10;
+    
+    // Exibe informações de depuração no console se o modo estiver ativo.
+    if (cbDebugMode.checked()) {
+        console.log(`Tamanho do Canvas em Pixels: ${width}w x ${height}h`);
+        console.log(`Tamanho do Grid em Células: ${cols} colunas - ${rows} linhas, total: ${cols*rows} células`);
+        console.log(`Tamanho da Célula: ${cellSize} pixeis`);
+    }
+}
+
+/**
+ * Função principal do p5.js, executada continuamente em loop (normalmente 60 vezes por segundo).
+ * É responsável por atualizar a lógica e desenhar os elementos na tela a cada frame.
+ */
+function draw() {
+    // Desenha o fundo do grid.
+    grid.draw();
+
+    // Verifica se a skin selecionada no menu dropdown mudou.
+    if (ddSkin.selected() !== previuosSkin) {
+
+        if (cbDebugMode.checked()) {
+            console.log(`Skins trocadas de ${skins[previuosSkin]} para ${skins[ddSkin.selected()]}`);
+        }
+        
+        previuosSkin = ddSkin.selected();
+
+        // Atualiza as imagens do agente, da comida e as imagens padrão de acordo com a skin escolhida.
+        if (previuosSkin === '0') {
+            agent.img = agentImg0;
+            food.img = foodImg0;
+            defaultAgentImg = agentImg0;
+            defaultFoodImg = foodImg0;
+            defaultExploredImg = exploredImg0;
+            defaultFrontierImg = frontierImg0;
+            defaultStepImg = stepImg10;
+        } else if (previuosSkin === '1') {
+            agent.img = agentImg1;
+            food.img = foodImg1;
+            defaultAgentImg = agentImg1;
+            defaultFoodImg = foodImg1;
+            defaultExploredImg = exploredImg1;
+            defaultFrontierImg = frontierImg1;
+            defaultStepImg = stepImg1;
         }
     }
 
-    // 2. Se não houver nenhum local válido, avisa e retorna null
-    if (validSpots.length === 0) {
-        console.error("ERRO: Não existe nenhum local válido no grid para criar o agente!");
-        return null;
+    // ! ---- MÁQUINA DE ESTADOS PRINCIPAL ---- !
+    
+    // Se a flag de erro estiver ativa, exibe uma tela de erro e para a execução.
+    if (ERROR) {
+        strokeWeight(0);
+        fill(255, 0, 0, 100);
+        rect(0, 0, cols*cellSize, rows*cellSize);
+        
+        textSize(64);
+        stroke(0);
+        strokeWeight(5);
+        fill(255, 200, 0);
+        textAlign(CENTER, CENTER);
+        text("ERRO:", width/2, (height/2)-70);
+        text("Verifique o console (F12)!", width/2, height/2);
+        return;
     }
 
-    // 3. Escolhe um local aleatório da lista de locais válidos
-    const spotAgent = random(validSpots);
-    const newValidSpots = validSpots.filter(spot => spot !== spotAgent);
-    const spotFood = random(newValidSpots);
+    // Se o jogo não estiver pausado, executa a lógica principal.
+    if (!cbPause.checked()) {
 
-    // 4. Cria e retorna o par
-    return [ new Agent(spotAgent.x, spotAgent.y, cellSize, agentImg), new Food(spotFood.x, spotFood.y, cellSize, foodImg)];
+        if (cbDebugMode.checked()) {
+            console.log(`Game: #${lootedFood} - CurrentGameState: ${currentGameState}`);
+        }
+
+        // Se o agente estiver sendo arrastado, atualiza sua posição para a do mouse.
+        if (isDragging) {
+            agent.setPosition(gridToPixel(mouseX), gridToPixel(mouseY));
+        }
+
+        // --- Lógica baseada no estado atual do jogo (currentGameState) ---
+
+        if (currentGameState == 0) {
+            // ! Agente vai procurar uma rota até a comida
+
+            // Executa o algoritmo de busca selecionado.
+            if (ddAlgorithm.selected() === '0') {
+                searchRegistry = uniformCostSearch(grid, agent.node(grid), food.node(grid));
+            } else if (ddAlgorithm.selected() === '1') {
+                searchRegistry = greedyBestFirstSearch(grid, agent.node(grid), food.node(grid), null);
+            } else {
+                console.error(`Algoritmo de busca indefinido: ${ddAlgorithm.selected()} !`);
+                ERROR = true;
+                return;
+            }
+            
+            // Armazena o histórico da busca (snapshots) e o caminho final.
+            snapshots = searchRegistry.gridHistory;
+            pathToFood = searchRegistry.finalPath;
+
+            if (cbDebugMode.checked()) {
+                console.log(`snapshots:`);
+                console.log(snapshots);
+                console.log(`pathToFood:`);
+                console.log(pathToFood);
+            }
+
+            // Se um caminho foi encontrado, avança para o próximo estado.
+            if (pathToFood.length !== 0) {
+                currentGameState = 1;
+                stepRotation = getStepRotation(pathToFood); // Calcula as rotações para as pegadas.
+            } else {
+                // Se não encontrou caminho, exibe erro e reseta o jogo.
+                console.error("Impossível encontrar um caminho até a comida. O jogo será resetado.");
+                btResetGamePressed();
+                return; // Sai do draw() para evitar erros no mesmo frame.
+            }
+
+        } else if (currentGameState == 1) {
+            // ! Animação da busca
+            
+            // Avança o índice do snapshot da busca com base no tempo de delay.
+            if (millis() - startTime > getDelayTime()) {
+                snapshotIndex++;
+                if (snapshotIndex >= snapshots.length) {
+                    currentGameState = 2; // Passa para a animação do caminho.
+                }
+                startTime = millis();
+            }
+
+        } else if (currentGameState == 2) {
+            // ! Animação do caminho
+            
+            // Avança o índice do passo do caminho com base no tempo de delay.
+            if (millis() - startTime > getDelayTime()) {
+                pathIndex++;
+                if (pathIndex >= pathToFood.length) {
+                    currentGameState = 3; // Passa para o movimento do agente.
+                }
+                startTime = millis();
+            }
+
+        } else if (currentGameState == 3) {
+            // ! Agente vai andar até a comida
+
+            // Se o agente chegou na comida, avança de estado.
+            if (agent.pos.x == food.pos.x && agent.pos.y == food.pos.y) {
+                currentGameState = 4;
+            } else if (!agent.isMoving) {
+                // Se não estiver se movendo, define o caminho a ser seguido.
+                agent.setPath(pathToFood);
+            }
+            // Atualiza a posição do agente ao longo do caminho.
+            agent.update(getSpeedMovement());
+
+        } else if (currentGameState == 4) {
+            // ! Agente chegou na comida e conta o ponto
+            
+            lootedFood++;
+            console.log(`Comidas Saqueadas: ${lootedFood}`);
+            currentGameState = 5;
+
+        } else if (currentGameState == 5) {
+            // ! Comida é resetada
+            
+            // Cria uma nova comida em uma posição válida.
+            food = createObj('food', null, [agent.node(grid)]);
+            currentGameState = 6;
+
+        } else if (currentGameState == 6) {
+            // ! Preparação para reiniciar o jogo
+            
+            // Reseta todas as variáveis de estado para iniciar uma nova busca.
+            resetGridNodes(grid);
+            pathIndex = 0;
+            snapshotIndex = 0;
+            pathToFood = [];
+            searchRegistry = {};
+            currentGameState = 0;
+
+        } else if (currentGameState == 99) {
+            // ! Obj sendo arrastado pelo mouse
+            // Nenhum código aqui, o estado apenas impede a lógica normal de rodar.
+        } else {
+            console.error(`ERRO: Estado não definido!`);
+            ERROR = true;
+        }
+    }
+
+    // ! ---- FUNÇÕES DE DESENHO (EXECUTADAS TODO FRAME) ---- !
+
+    // Desenha as animações da busca e do caminho.
+    drawSearch(snapshotIndex);
+    drawPath(pathIndex);
+
+    // Desenha a comida e o agente.
+    food.show();
+    agent.show();
+
+    // Desenha o contador de saques e o nome do algoritmo na tela.
+    push();
+    stroke(0);
+    strokeWeight(3);
+    fill(220, 220, 220);
+    textAlign(RIGHT, CENTER);
+    textSize(32);
+    text(`Saques: ${lootedFood}`, width - 10, 25);
+    textSize(32);
+    text(`Algorithm: ${searchAlgorithms[ddAlgorithm.selected()]}`, width - 10, height - 30);
+    pop();
+
+    // Se o jogo estiver pausado, desenha uma sobreposição e para a execução do frame.
+    if (cbPause.checked()) {
+        strokeWeight(0);
+        fill(255, 255, 100, 100);
+        rect(0, 0, cols*cellSize, rows*cellSize);
+        
+        textSize(64);
+        stroke(0);
+        strokeWeight(5);
+        fill(255, 200, 0);
+        textAlign(CENTER, CENTER);
+        text("Jogo Pausado", width/2, height/2);
+        return;
+    }
 }
 
-function setup() {
-    // * Para que o número de grid seja um número natural:
-    createCanvas(cols*cellSize, rows*cellSize);
+// ===================================================================================
+// FUNÇÕES DE EVENTOS (BOTÕES, MOUSE)
+// ===================================================================================
 
+/**
+ * Função chamada quando o botão "New Map" é pressionado.
+ * Reseta o jogo e gera um novo mapa com uma nova seed de ruído.
+ */
+function btNewMapPressed() {
+    noiseSeed(random(10000));
     grid = new Grid(cols, rows, cellSize);
-    console.log(`Tamanho do Canvas em Pixels: ${width}w x ${height}h`);
-    console.log(`Tamanho do Grid em Células: ${cols} colunas - ${rows} linhas, total: ${cols*rows} células`);
-    console.log(`Tamanho da Célula: ${cellSize} pixeis`);
+    if (!grid) {
+        ERROR = true;
+        return;
+    }
+    btResetGamePressed();
+}
 
-    // Cria food e agent em células válidas para não ocorrer de nascer em cima de um obstáculo por exemplo
-    [ agent, food ] = createPair();
+/**
+ * Função chamada quando o botão "Reset Speed" é pressionado.
+ * Restaura o valor do slider de velocidade para o padrão.
+ */
+function btResetSpeedPressed() {
+    slSpeed.value(defaultDelayTime);
+}
 
+/**
+ * Função chamada para resetar o estado do jogo para o início.
+ * Zera contadores, limpa caminhos e cria novos agente e comida.
+ */
+function btResetGamePressed() {
+    resetGridNodes(grid);
     startTime = millis();
-    visitedCells = new Set();
-    visitedIndex = 0;
-    pathCells = new Set();
-    pathIndex = 0;
-    frontierCells = new Set();
-    frontierIndex = 0;
-    steppedCells = new Set();
-    steppedIndex = 0;
     snapshots = [];
     snapshotIndex = 0;
     currentGameState = 0;
     pathToFood = [];
+    pathIndex = 0;
     searchRegistry = {};
-    lootedFood= 0;
+    lootedFood = 0;
+    stepRotation = [];
+    invalidSpawns = ['obstacle'];
 
+    // Cria food e agent em células válidas.
+    agent = createObj('agent');
+    if (!agent) {
+        ERROR = true;
+        return;
+    }
+    food = createObj('food', null, [agent.node(grid)]);
+    if (!food) {
+        ERROR = true;
+        return;
+    }
 }
 
-function drawSet(set, r = null, g = null, b = null, a = null, img = null, rotate = null) {
-    // console.log(set);
-    if (img && rotate) {
-        push();
-        imageMode(CENTER);
-        for (let item of set) {
-            translate(item.x, item.y);
-            rotate(rotate);
-            image(img, 0, 0, cellSize, cellSize);
+/**
+ * Função de evento do p5.js chamada quando qualquer botão do mouse é pressionado.
+ */
+function mousePressed() {
+    // Se o mouse for pressionado sobre o agente, inicia o modo de arrasto.
+    if (agent.isOver(mouseX, mouseY)) {
+        currentGameState = 99; // Estado especial de arrasto.
+        isDragging = true;
+        previousPos = agent.pos.copy();
+    }
+}
+
+/**
+ * Função de evento do p5.js chamada quando qualquer botão do mouse é solto.
+ */
+function mouseReleased() {
+    // Se estava arrastando o agente, finaliza o modo de arrasto.
+    if (isDragging) {
+        isDragging = false;
+        currentGameState = 6; // Estado para preparar um novo ciclo.
+
+        // Converte a posição final do mouse para coordenadas do grid.
+        let newGridX = floor(mouseX / cellSize);
+        let newGridY = floor(mouseY / cellSize);
+
+        // Garante que a nova posição esteja dentro dos limites do grid.
+        newGridX = constrain(newGridX, 0, cols - 1);
+        newGridY = constrain(newGridY, 0, rows - 1);
+
+        // Verifica se a nova posição é válida (não é um obstáculo).
+        let movementAccepted = true;
+        for (let type of invalidSpawns) {
+            if (grid.grid[newGridY][newGridX].terrain.name === type) {
+                movementAccepted = false;
+                break;
+            }
         }
-        pop();
+
+        // Se for válida, atualiza a posição do agente.
+        if (movementAccepted) {
+            agent.setPosition(newGridX, newGridY);
+        } else {
+            // Senão, retorna o agente para a posição anterior.
+            agent.setPosition(previousPos.x, previousPos.y);
+        }
+    }
+}
+
+// ===================================================================================
+// FUNÇÕES AUXILIARES E DE LÓGICA
+// ===================================================================================
+
+/**
+ * Cria e retorna um objeto (Agente ou Comida) em uma posição aleatória e válida do grid.
+ * @param {string} [objType='food'] O tipo de objeto a ser criado ('food' or 'agent').
+ * @param {Array<string>} [excludeType=null] Um array de nomes de terrenos a serem evitados.
+ * @param {Array<Node>} [excludeSpot=null] Um array de nós específicos a serem evitados.
+ * @returns {(Agent|Food|undefined)} O objeto criado ou undefined se a criação falhar.
+ */
+function createObj(objType = 'food', excludeType = null, excludeSpot = null) {
+    if (!excludeType) {
+        excludeType = invalidSpawns;
+    }
+    const spot = getSpot(excludeType, excludeSpot);
+    if (spot) {
+        if (objType === 'food') {
+            return new Food(spot.x, spot.y, cellSize, defaultFoodImg);
+        } else if (objType === 'agent') {
+            return new Agent(spot.x, spot.y, cellSize, defaultAgentImg);
+        }
+
+        console.error(`ERRO: objType não existe, verifique createObj() e tente novamente.`);
+        ERROR = true;
         return;
     }
 
-    if (typeof r === 'number' && typeof g === 'number' && typeof b === 'number' && typeof a === 'number') {
-        noStroke()
-        fill(r, g, b, a);
-        for (let item of set) {
-            console.log(item);
-            rect(item.x * cellSize, item.y * cellSize, cellSize, cellSize);
-        }
-    }
+    console.error("Não existe nenhum local válido no grid atual para criar o objeto! O mapa será resetado.");
+    btNewMapPressed();
 }
 
-function draw() {
-    console.log(`currentGameState ${currentGameState}`);
+/**
+ * Encontra e retorna um nó (célula) aleatório e válido no grid.
+ * @param {Array<string>} [excludeType=null] Um array de nomes de terrenos a serem evitados.
+ * @param {Array<Node>} [excludeSpot=null] Um array de nós específicos a serem evitados.
+ * @returns {(Node|null)} Um nó válido ou null se nenhum for encontrado.
+ */
+function getSpot(excludeType = null, excludeSpot = null) {
+    const validSpots = [];
+    let arrayRemoved = [];
 
-    if (currentGameState == 0) {
+    // 1. Percorre o grid uma vez para encontrar todos os locais válidos.
+    for (let y = 0; y < grid.rows; y++) {
+        for (let x = 0; x < grid.cols; x++) {
+            let eligible = true;
 
-        // ! Agente vai procurar uma rota até a comida
-        searchRegistry = uniformCostSearch(grid, agent.node(grid), food.node(grid));
-        snapshots = searchRegistry.gridHistory;
-        pathToFood = searchRegistry.finalPath;
-        console.log(searchRegistry);
-        if (pathToFood.length !== 0) {
-            currentGameState = 1;
-        } else {
-            console.log("Erro no pathToFood!");
-        }
+            // Exclui os tipos de terreno indesejáveis.
+            if (excludeType) {
+                for (let type of excludeType) {
+                    if (grid.grid[y][x].terrain.name === type) {
+                        if (cbDebugMode.checked()) {
+                            arrayRemoved.push(`${grid.grid[y][x].terrain.name} removido (${type}) em x:${x} y:${y}`);
+                        }
+                        eligible = false;
+                        break;
+                    }
+                }
+            }
+            if (!eligible) continue;
 
-    } else if (currentGameState == 1) {
-
-        // ! Animação da busca
-
-        if (millis() - startTime > delayTime) {
-            grid.draw();
-            
-            for (let i = 0; i < cols; i++) {
-                for (let j = 0; j < rows; j++) {
-                    
-                    let cell = snapshots[snapshotIndex].grid[j][i];
-
-                    // Percorre toda a matriz do snapshot para verificar qual celula já foi explorada
-                    if (cell.state === 'frontier') {
-                        if (!frontierCells.has(cell)) { frontierCells.add(cell); }
-                        // if (visitedCells.has(cell)) { visitedCells.delete(cell); }
-                    } else if (cell.state === 'visited') {
-                        if (!visitedCells.has(cell)) { visitedCells.add(cell); }
-                        if (frontierCells.has(cell)) { frontierCells.delete(cell); }
+            // Exclui os spots indesejáveis.
+            if (excludeSpot) {
+                for (let spot of excludeSpot) {
+                    if (spot.x === x && spot.y === y) {
+                        if (cbDebugMode.checked()) {
+                            arrayRemoved.push(`${grid.grid[y][x].terrain.name} removido (${spot.x}, ${x} : ${spot.y}, ${y}) em x:${x} y:${y}`);
+                        }
+                        eligible = false;
+                        break;
                     }
                 }
             }
 
-            drawSet(frontierCells, 255, 0, 0, 100);
-            drawSet(visitedCells, 255, 255, 0, 100);
-
-            snapshotIndex++;
-            if (snapshotIndex >= snapshots.length) {
-                currentGameState = 2;
+            // Se o local continuar sendo elegível, ele é adicionado a lista de locais válidos.
+            if (eligible) {
+                validSpots.push(grid.grid[y][x]);
             }
-            startTime = millis();
         }
-
-    } else if (currentGameState == 2) {
-        
-        // ! Animação do caminho
-        
-        if (millis() - startTime > delayTime) {
-            grid.draw();
-
-            let cell = pathToFood[pathIndex];
-
-            // Percorre toda a lista do path para pintar o caminho
-            if (!pathCells.has(cell)) { pathCells.add(cell); }
-            if (visitedCells.has(cell)) { visitedCells.delete(cell); }
-            if (frontierCells.has(cell)) { frontierCells.delete(cell); }
-
-            drawSet(frontierCells, 255, 0, 0, 100);
-            drawSet(visitedCells, 255, 255, 0, 100);
-            drawSet(pathCells, 255, 255, 255, 100);
-
-            pathIndex++;
-            if (pathIndex >= pathToFood.length) {
-                currentGameState = 3;
-            }
-            startTime = millis();
-        }
-    
-    } else if (currentGameState == 3) {
-
-        // ! Agente vai andar até a comida
-
-        if (millis() - startTime > delayTime) {
-            grid.draw();
-            drawSet(frontierCells, 255, 0, 0, 100);
-            drawSet(visitedCells, 255, 255, 0, 100);
-            drawSet(pathCells, 255, 255, 255, 100);
-            
-            if (!agent.isMoving) {
-                agent.setPath(pathToFood);
-            }
-            if (agent.path.length > 0 && !agent.isMoving) {
-                // Se o caminho tinha algo E o agente parou de se mover, ele chegou.
-                currentGameState = 4;
-            }
-            startTime = millis();
-        }
-
-    } else if (currentGameState == 4) {
-
-        // ! Agente chegou na comida
-
-        lootedFood++;
-        console.log(`Comidas Saqueadas: ${lootedFood}`);
-
-        [ _, food ] = createPair();
-
-        currentGameState = 0;
-        frontierCells.clear();
-        visitedCells.clear();
-        pathCells.clear();
-        frontierIndex = 0;
-        visitedIndex = 0;
-        pathIndex = 0;
-        snapshotIndex = 0;
-        pathToFood = [];
-        searchRegistry = {};
     }
 
-    food.show();
-    agent.update();
-    agent.show();
+    // 2. Se não houver nenhum local válido, avisa e retorna null.
+    if (validSpots.length === 0) {
+        return null;
+    }
 
+    // 3. Escolhe um local aleatório da lista de locais válidos.
+    const bestSpot = random(validSpots);
+
+    if (cbDebugMode.checked()) {
+        console.log(`Lista de Nós Inválidos:`);
+        console.log(arrayRemoved);
+        console.log(`Grid:`);
+        console.log(grid.grid);
+        console.log(`Best Spot:`);
+        console.log(bestSpot);
+    }
+
+    return bestSpot;
 }
 
-// * --- FUNÇÕES DE CONVERSÃO ---
+/**
+ * Calcula o atraso para as animações com base no valor do slider.
+ * Mapeia o valor do slider para que valores maiores resultem em animações mais rápidas.
+ * @returns {number} O tempo de atraso em milissegundos.
+ */
+function getDelayTime() {
+    return map(slSpeed.value(), minDelayTime, maxDelayTime, maxDelayTime, minDelayTime);
+}
+
+/**
+ * Calcula a velocidade de movimento do agente com base no valor do slider.
+ * @returns {number} Um valor entre 0.01 e 1 para a velocidade.
+ */
+function getSpeedMovement() {
+    return map(slSpeed.value(), minDelayTime, maxDelayTime, 0.01, 1);
+}
+
+/**
+ * Reseta as propriedades de busca de todos os nós no grid.
+ * @param {Grid} gridToReset O grid que terá seus nós limpos.
+ */
+function resetGridNodes(gridToReset) {
+    for (let y = 0; y < gridToReset.rows; y++) {
+        for (let x = 0; x < gridToReset.cols; x++) {
+            const node = gridToReset.grid[y][x];
+            node.g = 0;
+            node.h = 0;
+            node.f = 0;
+            node.parent = null;
+            node.state = 'default'; // Importante para a animação visual
+        }
+    }
+}
+
+// ===================================================================================
+// FUNÇÕES DE DESENHO E ANIMAÇÃO
+// ===================================================================================
+
+/**
+ * Desenha a animação da busca (células visitadas e na fronteira).
+ * @param {number} index O índice do snapshot a ser desenhado.
+ */
+function drawSearch(index) {
+    // Validações para garantir que o índice é válido e que há snapshots para desenhar.
+    if (!snapshots || snapshots.length === 0) return;
+    if (typeof index !== 'number' || index < 0) return;
+    if (index >= snapshots.length) {
+        index = snapshots.length - 1;
+    }
+
+    // Percorre o grid do snapshot para desenhar o estado de cada célula.
+    for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < rows; j++) {
+            let cell = snapshots[index].grid[j][i];
+
+            // Não desenha sobre a célula do agente.
+            if (!(cell.x === agent.pos.x && cell.y === agent.pos.y)) {
+                push();
+                if (cbDebugMode.checked()) {
+                    // No modo debug, desenha quadrados coloridos.
+                    if (cell.state === 'frontier') {
+                        fill(70, 0, 150);
+                        square(cell.x * cellSize, cell.y * cellSize, cellSize);
+                    } else if (cell.state === 'visited') {
+                        fill(150, 50, 255);
+                        square(cell.x * cellSize, cell.y * cellSize, cellSize);
+                    }
+                } else {
+                    // No modo normal, desenha imagens.
+                    translate(gridToPixel(i), gridToPixel(j));
+                    rotate(random(0.09));
+                    if (cell.state === 'frontier') {
+                        image(defaultFrontierImg, 0, 0, cellSize - 20, cellSize - 20);
+                    } else if (cell.state === 'visited') {
+                        image(defaultExploredImg, 0, 0, cellSize - 20, cellSize - 20);
+                    }
+                }
+                pop();
+            }
+        }
+    }
+}
+
+/**
+ * Desenha a animação do caminho encontrado.
+ * @param {number} limit O número de passos do caminho a serem desenhados.
+ */
+function drawPath(limit) {
+    // Validações para garantir que o limite é válido.
+    if (typeof limit !== 'number' || limit < 0) return;
+    if (limit >= pathToFood.length) {
+        limit = pathToFood.length - 1;
+    }
+
+    // Primeiro, preenche o fundo do caminho com a cor do terreno.
+    for (let i = 0; i < limit; i++) {
+        let cell = pathToFood[i];
+        fill(cell.terrain.color);
+        square(cell.x * cellSize, cell.y * cellSize, cellSize);
+    }
+
+    // Depois, desenha as pegadas sobre o caminho.
+    for (let i = 0; i < limit; i++) {
+        let cell = pathToFood[i];
+        if (cbDebugMode.checked()) {
+            // No modo debug, desenha quadrados pretos.
+            fill(0, 0, 0);
+            square(cell.x * cellSize, cell.y * cellSize, cellSize);
+        } else {
+            // No modo normal, desenha a imagem da pegada com a rotação correta.
+            push();
+            translate(gridToPixel(cell.x), gridToPixel(cell.y));
+            rotate(stepRotation[i]);
+            image(defaultStepImg, 0, 0, cellSize - 20, cellSize - 20);
+            pop();
+        }
+    }
+}
+
+// ===================================================================================
+// FUNÇÕES DE CONVERSÃO E CÁLCULO
+// ===================================================================================
+
+/**
+ * Converte uma coordenada em pixels para o índice correspondente no grid.
+ * @param {number} pixel A coordenada em pixels.
+ * @returns {number} O índice no grid.
+ */
 function pixelToGrid(pixel) {
     return floor(pixel / cellSize);
 }
 
+/**
+ * Converte um índice do grid para a coordenada central da célula em pixels.
+ * Usado para posicionar imagens no centro das células.
+ * @param {number} gridIndex O índice no grid.
+ * @returns {number} A coordenada central em pixels.
+ */
 function gridToPixel(gridIndex) {
     return (gridIndex * cellSize) + (cellSize / 2);
 }
 
-//! APENAS PARA TESTE DA ANIMAÇÃO !!! APAGAR PARA PRODUÇÃO !!!
 /**
- * Gera a matriz de terreno usando Ruído de Perlin para um resultado mais natural.
- * @returns {Array<Array<number>>} A matriz 2D do terreno.
+ * Calcula e retorna um array com as rotações necessárias para cada passo do caminho.
+ * @param {Array<Node>} path O caminho (array de nós) a ser percorrido.
+ * @returns {Array<number>} Um array de ângulos de rotação em graus.
  */
-function generateTerrain() {
-    let grid = [];
-    const noiseScale = 0.3;
-
-    for (let i = 0; i < cols; i++) {
-        grid[i] = []; // Cria a coluna
-        for (let j = 0; j < rows; j++) {
-            // Pega um valor do Ruído de Perlin (entre 0 e 1)
-            let noiseValue = noise(i * noiseScale, j * noiseScale);
-
-            // Mapeia o valor do ruído para um tipo de terreno
-            if (noiseValue < 0.3) {
-                grid[i][j] = -1; // Obstáculo (20% de chance)
-            } else if (noiseValue < 0.5) {
-                grid[i][j] = 2; // Água (20% de chance)
-            } else if (noiseValue < 0.8) {
-                grid[i][j] = 1; // Atoleiro (20% de chance)
-            } else {
-                grid[i][j] = 0; // Areia (30% de chance)
-            }
+function getStepRotation(path) {
+    let stepRotation = [];
+    if (path.length > 1) {
+        for (let i = 1; i < path.length; i++) {
+            let angle = getRotationForStep(path[i - 1], path[i]);
+            stepRotation.push(angle);
         }
+    } else if (path.length === 1) {
+        stepRotation.push(0);
     }
-    return grid;
-}
-
-//! APENAS PARA TESTE DA ANIMAÇÃO !!! APAGAR PARA PRODUÇÃO !!!
-/**
- * Cria uma sequência de matrizes (snapshots) mostrando a exploração do mapa.
- * Simula uma "névoa de guerra" sendo revelada passo a passo.
- * @returns {Array<Array<Array<number>>>} Um array de matrizes 2D de exploração.
- */
-function initializeExplored() {
-    // 1. Começa com uma matriz onde nada foi explorado (tudo 0)
-    let exploredGrid = [];
-    for (let i = 0; i < cols; i++) {
-        exploredGrid[i] = [];
-        for (let j = 0; j < rows; j++) {
-            exploredGrid[i][j] = 0;
-        }
-    }
-
-    // Array para guardar cada passo da exploração
-    let snapshots = [];
-    // Adiciona o estado inicial (mapa todo inexplorado) como o primeiro snapshot
-    snapshots.push(exploredGrid.map(row => [...row]));
-
-    // --- Parâmetros para customizar a geração ---
-    const numRegions = floor(random(2, 5)); // Gera de 2 a 4 regiões de exploração
-    const maxExplorationRatio = 0.4; // Explora no máximo 40% do mapa
-    const expansionChance = 0.75; // 75% de chance de se expandir para um vizinho
-
-    let exploredCount = 0;
-    const maxExploredCells = cols * rows * maxExplorationRatio;
-
-    // 2. Para cada região que queremos criar...
-    for (let i = 0; i < numRegions; i++) {
-        if (exploredCount >= maxExploredCells) break;
-
-        // Escolhe um ponto de partida aleatório que ainda não foi explorado
-        let startX, startY;
-        do {
-            startX = floor(random(cols));
-            startY = floor(random(rows));
-        } while (exploredGrid[startX][startY] === 1);
-
-        // A "fila" de células que precisamos visitar para expandir
-        let queue = [{ x: startX, y: startY }];
-        exploredGrid[startX][startY] = 1;
-        exploredCount++;
-        // Tira um snapshot após marcar o ponto inicial
-        snapshots.push(exploredGrid.map(row => [...row]));
-
-        // 3. Loop de expansão (algoritmo de inundação/BFS)
-        while (queue.length > 0 && exploredCount < maxExploredCells) {
-            let current = queue.shift();
-
-            const neighbors = [
-                { x: current.x, y: current.y - 1 }, // Cima
-                { x: current.x, y: current.y + 1 }, // Baixo
-                { x: current.x - 1, y: current.y }, // Esquerda
-                { x: current.x + 1, y: current.y }  // Direita
-            ];
-
-            for (const neighbor of neighbors) {
-                if (neighbor.x >= 0 && neighbor.x < cols && neighbor.y >= 0 && neighbor.y < rows) {
-                    if (exploredGrid[neighbor.x][neighbor.y] === 0) {
-                        if (random() < expansionChance) {
-                            exploredGrid[neighbor.x][neighbor.y] = 1;
-                            exploredCount++;
-                            queue.push(neighbor);
-                            
-                            // *** A MUDANÇA PRINCIPAL ESTÁ AQUI ***
-                            // A cada célula explorada, salvamos uma cópia do estado atual do grid.
-                            // `map(row => [...row])` cria uma cópia profunda para que o snapshot não mude depois.
-                            snapshots.push(exploredGrid.map(row => [...row]));
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // Agora, a função retorna o array com todos os snapshots
-    return snapshots;
-}
-
-//! APENAS PARA TESTE DA ANIMAÇÃO !!! APAGAR PARA PRODUÇÃO !!!
-/**
- * Função temporária para calcular um caminho simples (ortogonal).
- * No futuro, será substituída pelos algoritmos de busca (A*, BFS, etc.).
- * @param {p5.Vector} startPos Posição inicial no grid.
- * @param {p5.Vector} endPos Posição final no grid.
- * @returns {Array<p5.Vector>} Um array de vetores representando o caminho.
- */
-function calculateSimplePath(startPos, endPos) {
-    let tempPath = [];
-    let currentPos = startPos.copy();
-    let safetyBreak = 0; // Evita loops infinitos
-
-    while (currentPos.dist(endPos) > 0 && safetyBreak < (cols * rows)) {
-        const diff = p5.Vector.sub(endPos, currentPos);
-
-        if (abs(diff.x) > abs(diff.y)) {
-            currentPos.x += Math.sign(diff.x);
-        } else {
-            currentPos.y += Math.sign(diff.y);
-        }
-        
-        // A MUDANÇA: Em vez de adicionar o objeto p5.Vector (currentPos.copy()),
-        // adicionamos um objeto simples com as propriedades x e y.
-        tempPath.push([currentPos.x, currentPos.y]);
-        
-        safetyBreak++;
-    }
-    return tempPath;
-}
-
-
-/**
- * Gera um número aleatório entre min e max (inclusivo).
- * @param {number} min O valor mínimo.
- * @param {number} max O valor máximo.
- * @returns {number} Um número inteiro aleatório.
- */
-function gerarIntAleatorio(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+    return stepRotation;
 }
 
 /**
- * Cria um conjunto (array) de objetos com coordenadas aleatórias.
- * @returns {Array<{x: number, y: number}>} Um array de objetos de coordenadas.
+ * Calcula o ângulo de rotação (em graus) para uma imagem baseada no movimento entre duas células.
+ * Assume que a imagem original aponta para cima (0 graus).
+ * @param {Node} currentCell A célula de onde o movimento partiu.
+ * @param {Node} nextCell A célula para onde o movimento chegou.
+ * @returns {number} O ângulo em graus (0, 90, 180, 270).
  */
-function gerarConjuntoDeCoordenadas() {
-  // 1. Define quantos objetos o conjunto terá (de 1 a 80).
-  const quantidade = gerarIntAleatorio(1, 80);
-  const conjunto = [];
+function getRotationForStep(currentCell, nextCell) {
+    const dx = nextCell.x - currentCell.x;
+    const dy = nextCell.y - currentCell.y;
 
-  // 2. Cria cada objeto com coordenadas aleatórias e o adiciona ao array.
-  for (let i = 0; i < quantidade; i++) {
-    const ponto = {
-      x: gerarIntAleatorio(0, 12), // Gera x entre 0 e 12
-      y: gerarIntAleatorio(0, 9),  // Gera y entre 0 e 9
-    };
-    conjunto.push(ponto);
-  }
-
-  return conjunto;
+    if (dy === -1) { // Movendo para Cima
+        return 0;
+    } else if (dx === 1) { // Movendo para a Direita
+        return 90;
+    } else if (dy === 1) { // Movendo para Baixo
+        return 180;
+    } else if (dx === -1) { // Movendo para a Esquerda
+        return 270;
+    }
+    return 0; // Padrão, caso não haja movimento.
 }
