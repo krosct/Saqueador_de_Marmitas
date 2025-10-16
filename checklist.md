@@ -39,12 +39,12 @@
     -   `[X]` Implementar a classe `Agent` com posição e método `draw()`.
     -   `[X]` Implementar a classe `Food` com posição e método `draw()`.
     -   `[X]` No `Agent`, implementar o método `setPath(path)` para receber o caminho final.
-    -   `[ ]` Implementar a lógica de movimento do agente ao longo do caminho, com velocidade variável baseada em `currentNode.terrain.cost`.
+    -   `[X]` Implementar a lógica de movimento do agente ao longo do caminho, com velocidade variável baseada em `currentNode.terrain.cost`.
     -   `[X]` Implementar a detecção de colisão entre o agente e a comida.
 
--   `[ ]` **Gerenciamento de Estado**
-    -   `[ ]` Garantir que, ao selecionar um novo algoritmo no menu, a busca seja re-executada no **mesmo mapa**, limpando apenas o resultado da busca anterior.
-    -   `[ ]` Implementar o reaparecimento da comida após a coleta.
+-   `[X]` **Gerenciamento de Estado**
+    -   `[X]` Garantir que, ao selecionar um novo algoritmo no menu, a busca seja re-executada no **mesmo mapa**, limpando apenas o resultado da busca anterior.
+    -   `[X]` Implementar o reaparecimento da comida após a coleta.
 
 ## Integrante 3: João Pedro
 
