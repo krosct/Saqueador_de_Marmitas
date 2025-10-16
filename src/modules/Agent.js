@@ -1,6 +1,6 @@
 
 /**
- * Representa o agente Saqueador (Marauder) que se move pelo grid.
+ * Representa o agente Saqueador que se move pelo grid.
  */
 class Agent {
     /**
@@ -10,88 +10,108 @@ class Agent {
      * @param {p5.Image} img A imagem para desenhar o saqueador.
      */
     constructor(gridX, gridY, size, img) {
-        this.gridPos = createVector(gridX, gridY);
+        this.pos = createVector(gridX, gridY);
         this.pixelPos = createVector(gridToPixel(gridX), gridToPixel(gridY));
         this.size = size - 5;
         this.img = img;
         
-        // * --- Propriedades para movimento ---
-        this.targetPixelPos = this.pixelPos.copy();
         this.isMoving = false;
-        
-        // * --- CONTROLE DE VELOCIDADE ---
-        // Valor entre 0 e 1. Quanto maior, mais rápido.
-        this.animationSpeed = 0.2;
-
-        // * --- NOVAS PROPRIEDADES PARA SEGUIR O CAMINHO ---
-        this.path = []; // Armazena a lista de nós (caminho) a ser seguido
-        this.currentPathIndex = 0; // O índice do nó no caminho para o qual estamos nos movendo
+        this.path = [];
+        this.currentPathIndex = 0;
     }
 
     /**
-     * Define um novo caminho para o saqueador seguir e inicia o movimento.
-     * @param {Array<p5.Vector>} newPath Um array de vetores p5.js com as coordenadas do grid.
+     * Define a posição lógica e visual do agente, parando qualquer movimento.
+     * Use esta função para "teleportar" ou posicionar o agente.
+     * @param {number} gridX Nova posição X no grid.
+     * @param {number} gridY Nova posição Y no grid.
+     */
+    setPosition(gridX, gridY) {
+        this.pos.set(gridX, gridY);
+        this.pixelPos.set(gridToPixel(gridX), gridToPixel(gridY));
+    }
+
+    /**
+     * Define um novo caminho para o agente seguir e inicia o movimento.
+     * @param {Array<Node>} newPath Um array de nós do grid.
      */
     setPath(newPath) {
-        this.path = newPath;
-        this.currentPathIndex = 0;
-        this.setNextTarget();
-    }
-
-    /**
-     * Método interno privado para definir o próximo alvo do caminho.
-     * É chamado quando o movimento começa e toda vez que um nó do caminho é alcançado.
-     */
-    setNextTarget() {
-        if (!this.path || this.currentPathIndex >= this.path.length) {
-            this.path = [];
+        if (!newPath || newPath.length === 0) {
             this.isMoving = false;
             return;
         }
 
-        const nextNodeGridPos = this.path[this.currentPathIndex];
-        this.targetPixelPos = createVector(gridToPixel(nextNodeGridPos.x), gridToPixel(nextNodeGridPos.y));
-        this.isMoving = true;
+        this.path = newPath;
+        this.currentPathIndex = 0;
+        
+        if (this.path.length > 1) {
+            this.isMoving = true;
+        } else {
+            this.isMoving = false; // O caminho tem apenas um nó (o local atual)
+        }
     }
 
     /**
-     * Atualiza a posição do saqueador a cada frame para criar a animação.
+     * Atualiza a posição do agente a cada frame para criar a animação de movimento.
+     * @param {number} speed Velocidade base da animação (0 a 1).
      */
-    update() {
+    update(speed = 0.2) {
         if (!this.isMoving) {
             return;
         }
 
-        // Interpola a posição atual em direção ao alvo para criar o movimento suave
-        this.pixelPos.lerp(this.targetPixelPos, this.animationSpeed);
+        let node = this.path[this.currentPathIndex];
+        let target = createVector(node.x, node.y);
+        
+        // Ajusta a velocidade com base no custo do terreno do NÓ DE DESTINO
+        let finalSpeed = speed * map(node.terrain.cost, 1, 10, 0.8, 0.3);
 
-        const distance = this.pixelPos.dist(this.targetPixelPos);
-
-        // Quando o saqueador chega perto o suficiente do alvo...
+        let pixelTarget = createVector(gridToPixel(target.x), gridToPixel(target.y));
+        this.pixelPos.lerp(pixelTarget, finalSpeed);
+        const distance = this.pixelPos.dist(pixelTarget);
+        
+        // Quando o agente chega perto o suficiente do alvo...
         if (distance < 1) {
-            this.pixelPos.set(this.targetPixelPos);
-
-            // Atualiza a posição lógica do grid
-            const currentTargetNode = this.path[this.currentPathIndex];
-            this.gridPos.set(currentTargetNode.x, currentTargetNode.y);
-
-            // Prepara para ir para o PRÓXIMO nó do caminho
+            this.setPosition(target.x, target.y);
             this.currentPathIndex++;
-            this.setNextTarget();
+            
+            // Verifica se o caminho terminou
+            if (this.currentPathIndex >= this.path.length) {
+                this.isMoving = false;
+            }
         }
     }
 
     /**
-     * Desenha o saqueador no canvas na sua posição de pixel atual.
+     * Desenha o agente no canvas.
      */
     show() {
-        imageMode(CENTER);
-        image(this.img, this.pixelPos.x, this.pixelPos.y, this.size, this.size);
+        if (cbDebugMode.checked()) {
+            fill(150, 0, 0);
+            square(this.pos.x * cellSize, this.pos.y * cellSize, cellSize);
+        } else {
+            image(this.img, this.pixelPos.x, this.pixelPos.y, this.size, this.size);
+        }
     }
 
+    /**
+     * Retorna o nó do grid em que o agente está logicamente.
+     * @param {Grid} grid O objeto grid.
+     * @returns {Node} A célula/nó atual.
+     */
     node(grid) {
-        let a = grid.grid[this.gridPos.y][this.gridPos.x];
-        // console.log(a);
-        return a;
+        return grid.grid[this.pos.y][this.pos.x];
+    }
+    
+    /**
+     * Verifica se o mouse está sobre a posição visual do agente.
+     * @param {number} mx Posição X do mouse.
+     * @param {number} my Posição Y do mouse.
+     * @returns {boolean}
+     */
+    isOver(mx, my) {
+        const pos = this.pixelPos;
+        let d = dist(mx, my, pos.x, pos.y);
+        return d < this.size / 2;
     }
 }
