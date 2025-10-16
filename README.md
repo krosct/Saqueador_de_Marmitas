@@ -94,7 +94,7 @@ Interessado em contribuir? Ótimo! Leia nosso guia de contribuição para saber 
 
 ## 🔗 Links Importantes
 
-- **Projeto no p5js:** [Link](https://placebacon.net/400/300)
+- **Projeto no p5js:** [Link](https://editor.p5js.org/gms2/sketches/4lGDnxKc8N)
 
 ---
 ---
