@@ -1,10 +1,10 @@
 # 🤖 Saqueador de Marmitas
 
 ![Badge de Status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)
-![Badge de Licença](https://img.shields.io/github/license/krosct/Projeto-ESS)
-![Badge de Ultimo Commit](https://img.shields.io/github/last-commit/krosct/Projeto-ESS)
-![Badge de Contribuidores](https://img.shields.io/github/contributors/krosct/Projeto-ESS)
-![Linguagem](https://img.shields.io/github/languages/top/krosct/Projeto-ESS)
+![Badge de Licença](https://img.shields.io/github/license/krosct/Saqueador_de_Marmitas)
+![Badge de Ultimo Commit](https://img.shields.io/github/last-commit/krosct/Saqueador_de_Marmitas)
+![Badge de Contribuidores](https://img.shields.io/github/contributors/krosct/Saqueador_de_Marmitas)
+![Linguagem](https://img.shields.io/github/languages/top/krosct/Saqueador_de_Marmitas)
 
 ![p5js](https://img.shields.io/badge/p5.js-ED225D?style=for-the-badge&logo=p5.js&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
