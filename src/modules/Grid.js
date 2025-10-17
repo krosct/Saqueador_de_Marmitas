@@ -35,6 +35,19 @@ class Grid {
         // Use a random offset to vary the noise pattern each time
         const terrainOffsetX = 0; //random(1000);
         const terrainOffsetY = 0; //random(1000);
+        
+        const waterThreshold = 0.3;
+        const swampThreshold = 0.4;
+
+        // PHASE 2: Add obstacles as a separate layer with more dispersion
+        // Higher scale = smaller, more scattered, dispersed patterns
+        const obstacleScale = 0.4;
+        const obstacleOffsetX = random(1000);
+        const obstacleOffsetY = random(1000);
+        
+        // Obstacle density threshold - adjust this to control obstacle quantity
+        // Higher threshold = fewer obstacles
+        const obstacleThreshold = 0.6;
 
         for (let y = 0; y < this.rows; y++) {
             this.grid[y] = []; // Initialize the row
@@ -49,9 +62,9 @@ class Grid {
 
                 // Map noise to base terrain types (no obstacles yet)
                 // Adjusted thresholds to create more balanced terrain distribution
-                if (terrainNoise < 0.3) {
+                if (terrainNoise < waterThreshold) {
                     terrainType = Terrain.WATER;
-                } else if (terrainNoise < 0.4) {
+                } else if (terrainNoise < swampThreshold) {
                     terrainType = Terrain.SWAMP;
                 } else {
                     terrainType = Terrain.SAND;
@@ -61,16 +74,6 @@ class Grid {
                 this.grid[y][x] = new Node(x, y, terrainType);
             }
         }
-
-        // PHASE 2: Add obstacles as a separate layer with more dispersion
-        // Higher scale = smaller, more scattered, dispersed patterns
-        const obstacleScale = 0.4;
-        const obstacleOffsetX = random(1000);
-        const obstacleOffsetY = random(1000);
-        
-        // Obstacle density threshold - adjust this to control obstacle quantity
-        // Higher threshold = fewer obstacles
-        const obstacleThreshold = 0.6;
 
         for (let y = 0; y < this.rows; y++) {
             for (let x = 0; x < this.cols; x++) {
