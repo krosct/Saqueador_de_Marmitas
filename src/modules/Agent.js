@@ -12,7 +12,7 @@ class Agent {
     constructor(gridX, gridY, size, img) {
         this.pos = createVector(gridX, gridY);
         this.pixelPos = createVector(gridToPixel(gridX), gridToPixel(gridY));
-        this.size = size - 5;
+        this.size = size;
         this.img = img;
         
         this.isMoving = false;
@@ -87,10 +87,13 @@ class Agent {
      */
     show() {
         if (cbDebugMode.checked()) {
+            push();
+            rectMode(CENTER);
             fill(150, 0, 0);
-            square(this.pos.x * cellSize, this.pos.y * cellSize, cellSize);
+            square(gridToPixel(this.pos.x), gridToPixel(this.pos.y), slObjectSize.value() * cellSize);
+            pop();
         } else {
-            image(this.img, this.pixelPos.x, this.pixelPos.y, this.size, this.size);
+            image(this.img, this.pixelPos.x, this.pixelPos.y, slObjectSize.value() * this.size, slObjectSize.value() * this.size);
         }
     }
 
