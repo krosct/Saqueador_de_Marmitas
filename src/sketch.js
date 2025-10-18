@@ -31,9 +31,6 @@ const maxMapSize = 9; // Tamanho máximo do mapa.
 /** @type {number} @const */
 const minMapSize = 1; // Tamanho mínimo do mapa.
 
-/** @type {boolean} */
-let newMap = true; // Flag para indicar se um novo mapa deve ser gerado.
-
 // * --- IMAGENS DO PROETO ---
 
 // ? --- Variáveis para as imagens padrão/atuais ---
@@ -109,6 +106,8 @@ let lootedFood; // Contador de quantas comidas foram coletadas.
 let invalidSpawns; // Array com nomes de terrenos onde objetos não podem ser criados.
 /** @type {boolean} */
 let isDragging = false; // Flag que indica se o agente está sendo arrastado pelo mouse.
+/** @type {(Agent|Food|null)} */
+let dragging = null; // Armazena o objeto que está sendo arrastado pelo mouse;
 /** @type {p5.Vector} */
 let previousPos; // Armazena a posição anterior do agente antes de ser arrastado.
 /** @type {boolean} */
@@ -368,11 +367,22 @@ function draw() {
 
         // Se o agente estiver sendo arrastado, atualiza sua posição para a do mouse.
         if (isDragging) {
-            agent.setPosition(pixelToGrid(mouseX), pixelToGrid(mouseY));
-            // console.log(grid.grid[pixelToGrid(mouseY)][pixelToGrid(mouseX)].terrain.name);
-            if (grid.grid[pixelToGrid(mouseY)][pixelToGrid(mouseX)].terrain.name === 'obstacle') {
-                fill(255, 0, 0, 125);
-                square(pixelToGrid(mouseX) * cellSize, pixelToGrid(mouseY) * cellSize, cellSize);
+            // Verifica se o mouse está segurando algum objeto válido
+            if (dragging) {
+                let currentInvalidDragging = false;
+                dragging.setPosition(pixelToGrid(mouseX), pixelToGrid(mouseY));
+                for (let type of invalidSpawns) {
+                    if (grid.grid[pixelToGrid(mouseY)][pixelToGrid(mouseX)].terrain.name === type) {
+                        currentInvalidDragging = true;
+                        break;
+                    }
+                }
+
+                // Se o objeto estiver em um espaço inválido este espaço é pintado de vermelho
+                if (currentInvalidDragging) {
+                    fill(255, 0, 0, 125);
+                    square(pixelToGrid(mouseX) * cellSize, pixelToGrid(mouseY) * cellSize, cellSize);
+                }
             }
         }
 
@@ -592,7 +602,13 @@ function mousePressed() {
     if (agent.isOver(mouseX, mouseY)) {
         currentGameState = 99; // Estado especial de arrasto.
         isDragging = true;
+        dragging = agent;
         previousPos = agent.pos.copy();
+    } else if (food.isOver(mouseX, mouseY)) {
+        currentGameState = 99; // Estado especial de arrasto.
+        isDragging = true;
+        dragging = food;
+        previousPos = food.pos.copy();
     }
 }
 
@@ -624,10 +640,10 @@ function mouseReleased() {
 
         // Se for válida, atualiza a posição do agente.
         if (movementAccepted) {
-            agent.setPosition(newGridX, newGridY);
+            dragging.setPosition(newGridX, newGridY);
         } else {
             // Senão, retorna o agente para a posição anterior.
-            agent.setPosition(previousPos.x, previousPos.y);
+            dragging.setPosition(previousPos.x, previousPos.y);
         }
     }
 }
