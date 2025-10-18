@@ -2,13 +2,16 @@
 // * --- CONFIGURAÇÕES DO USUÁRIO ---
 
 /** @type {number} @const */
-const cellSize = 70; // Tamanho de cada célula do grid em pixels.
+const canvasWidthLimit = 1200; // Tamanho do canvas em pixels (eixo x). Tem que ser um número máximo divisor comum de 60 e 
 
 /** @type {number} @const */
-const cols = 19; // Número de colunas no grid.
+const defaultObjectSize = 0.85; // Tamanho padrão para os objetos.
 
 /** @type {number} @const */
-const rows = 10; // Número de linhas no grid.
+const maxObjectSize = 1; // Tamanho máximo permitido no slider.
+
+/** @type {number} @const */
+const minObjectSize = 0.2; // Tamanho mínimo permitido no slider.
 
 /** @type {number} @const */
 const defaultDelayTime = 1000; // Atraso padrão para animações (em milissegundos). Quanto maior mais rápido.
@@ -18,6 +21,15 @@ const maxDelayTime = 1500; // Atraso máximo permitido no slider.
 
 /** @type {number} @const */
 const minDelayTime = 1; // Atraso mínimo permitido no slider.
+
+/** @type {number} @const */
+const defaultMapSize = 2; // Tamanho padrão do mapa.
+
+/** @type {number} @const */
+const maxMapSize = 9; // Tamanho máximo do mapa.
+
+/** @type {number} @const */
+const minMapSize = 1; // Tamanho mínimo do mapa.
 
 /** @type {boolean} */
 let newMap = true; // Flag para indicar se um novo mapa deve ser gerado.
@@ -71,6 +83,8 @@ let agent; // Objeto que representa o agente (personagem).
 let food; // Objeto que representa a comida.
 /** @type {number} */
 let startTime; // Armazena o tempo (em milissegundos) para controlar animações.
+/** @type {number} */
+let cellSize; // Tamanho de cada célula do grid em pixels.
 
 // ? --- Variáveis para a animação da busca e do caminho ---
 /** @type {Array<Object>} */
@@ -122,6 +136,8 @@ let ddAlgorithm; // Menu dropdown para selecionar o algoritmo de busca.
 /** @type {p5.Element} */
 let lbAlgorithm; // Rótulo para o dropdown de algoritmos.
 /** @type {p5.Element} */
+let lbAdviceAlgorithm; // Rótulo do aviso do algoritmo aplicado.
+/** @type {p5.Element} */
 let lbSkin; // Rótulo para o dropdown de skins.
 /** @type {p5.Element} */
 let ddSkin; // Menu dropdown para selecionar a skin.
@@ -130,7 +146,17 @@ let previuosSkin = '-1'; // Armazena a skin selecionada anteriormente para detec
 /** @type {Array<string>} */
 let searchAlgorithms = ['Uniform Cost', 'Greedy Best First']; // Nomes dos algoritmos disponíveis.
 /** @type {Array<string>} */
-let skins = ['Grayilson', 'Coloricleide']; // Nomes das skins disponíveis.
+let skins = ['Coloricleide', 'Grayilson']; // Nomes das skins disponíveis.
+/** @type {p5.Element} */
+let lbMapSize; // Rótulo para o slider do tamanho do mapa.
+/** @type {p5.Element} */
+let slMapSize; // Slider para controlar o tamanho do mapa.
+/** @type {p5.Element} */
+let lbAdviceMapSize; // Rótulo do aviso do tamanho do mapa.
+/** @type {p5.Element} */
+let lbObjectSize; // Rótulo para o slider do tamanho dos objetos.
+/** @type {p5.Element} */
+let slObjectSize; // Slider para controlar o tamanho do objetos.
 /** @type {number} */
 let heightEtc = 0; // Variável auxiliar para posicionar elementos DOM verticalmente.
 
@@ -146,19 +172,20 @@ let heightEtc = 0; // Variável auxiliar para posicionar elementos DOM verticalm
 function preload() {
     // * Precarregamento das imagens que serão utilizadas na comida e no saqueador
 
-    // Pack Grayilson
-    agentImg0 = loadImage('src/img/agent1.png');
-    foodImg0 = loadImage('src/img/food1.png');
-    exploredImg0 = loadImage('src/img/explored1.png');
-    frontierImg0 = loadImage('src/img/frontier1.png');
-    stepImg10 = loadImage('src/img/step1.png');
-
     // Pack Coloricleide
-    agentImg1 = loadImage('src/img/agent2.png');
-    foodImg1 = loadImage('src/img/food2.png');
-    exploredImg1 = loadImage('src/img/explored2.png');
-    frontierImg1 = loadImage('src/img/frontier2.png');
-    stepImg1 = loadImage('src/img/step2.png');
+    agentImg0 = loadImage('src/img/agent0.png');
+    foodImg0 = loadImage('src/img/food0.png');
+    exploredImg0 = loadImage('src/img/explored0.png');
+    frontierImg0 = loadImage('src/img/frontier0.png');
+    stepImg10 = loadImage('src/img/step0.png');
+
+    // Pack Grayilson
+    agentImg1 = loadImage('src/img/agent1.png');
+    foodImg1 = loadImage('src/img/food1.png');
+    exploredImg1 = loadImage('src/img/explored1.png');
+    frontierImg1 = loadImage('src/img/frontier1.png');
+    stepImg1 = loadImage('src/img/step1.png');
+
 }
 
 /**
@@ -168,7 +195,7 @@ function preload() {
  */
 function setup() {
     // Cria o canvas com as dimensões baseadas no grid.
-    canvas = createCanvas(cols * cellSize, rows * cellSize);
+    canvas = createCanvas(canvasWidthLimit, canvasWidthLimit * 0.66666);
 
     // Variável para posicionamento vertical dos elementos DOM.
     heightEtc = 20;
@@ -197,7 +224,7 @@ function setup() {
     btResetSpeed.mousePressed(btResetSpeedPressed);
     heightEtc += 30;
 
-    lbSpeed = createP('Velocidade:');
+    lbSpeed = createP('Speed:');
     lbSpeed.position(width + 10, heightEtc);
     heightEtc += 30;
 
@@ -205,7 +232,7 @@ function setup() {
     slSpeed.position(width + 10, heightEtc);
     heightEtc += 20;
 
-    lbAlgorithm = createP('Algoritmo de Busca:');
+    lbAlgorithm = createP('Search Algorithm:');
     lbAlgorithm.position(width + 10, heightEtc);
     heightEtc += 40;
 
@@ -215,7 +242,12 @@ function setup() {
         ddAlgorithm.option(searchAlgorithms[i], i);
     }
     ddAlgorithm.disable('1'); // Desabilita temporariamente o algoritmo Greedy.
-    heightEtc += 30;
+    heightEtc += 10;
+
+    lbAdviceAlgorithm = createP('The algorithm will be applied in the next search.');
+    lbAdviceAlgorithm.style('font-size', '12px');
+    lbAdviceAlgorithm.position(width + 10, heightEtc);
+    heightEtc += 40;
 
     lbSkin = createP('Skins:');
     lbSkin.position(width + 10, heightEtc);
@@ -227,6 +259,26 @@ function setup() {
         ddSkin.option(skins[i], i);
     }
     heightEtc += 30;
+
+    lbMapSize = createP('Map Size:');
+    lbMapSize.position(width + 10, heightEtc);
+    heightEtc += 30;
+
+    slMapSize = createSlider(minMapSize, maxMapSize, defaultMapSize, 0.1);
+    slMapSize.position(width + 10, heightEtc);
+    heightEtc += 10;
+
+    lbAdviceMapSize = createP('You have to create a new map to change its size.');
+    lbAdviceMapSize.style('font-size', '12px');
+    lbAdviceMapSize.position(width + 10, heightEtc);
+    heightEtc += 40;
+
+    lbObjectSize = createP('Object Size:');
+    lbObjectSize.position(width + 10, heightEtc);
+    heightEtc += 30;
+
+    slObjectSize = createSlider(minObjectSize, maxObjectSize, defaultObjectSize, 0.1);
+    slObjectSize.position(width + 10, heightEtc);
 
     // Define o modo de ângulo para graus e o ponto de referência das imagens para o centro.
     angleMode(DEGREES);
@@ -256,6 +308,7 @@ function setup() {
  * É responsável por atualizar a lógica e desenhar os elementos na tela a cada frame.
  */
 function draw() {
+    background(255);
     // Desenha o fundo do grid.
     grid.draw();
 
@@ -315,7 +368,12 @@ function draw() {
 
         // Se o agente estiver sendo arrastado, atualiza sua posição para a do mouse.
         if (isDragging) {
-            agent.setPosition(gridToPixel(mouseX), gridToPixel(mouseY));
+            agent.setPosition(pixelToGrid(mouseX), pixelToGrid(mouseY));
+            // console.log(grid.grid[pixelToGrid(mouseY)][pixelToGrid(mouseX)].terrain.name);
+            if (grid.grid[pixelToGrid(mouseY)][pixelToGrid(mouseX)].terrain.name === 'obstacle') {
+                fill(255, 0, 0, 125);
+                square(pixelToGrid(mouseX) * cellSize, pixelToGrid(mouseY) * cellSize, cellSize);
+            }
         }
 
         // --- Lógica baseada no estado atual do jogo (currentGameState) ---
@@ -439,14 +497,15 @@ function draw() {
 
     // Desenha o contador de saques e o nome do algoritmo na tela.
     push();
-    stroke(0);
-    strokeWeight(3);
-    fill(220, 220, 220);
+    stroke(150);
+    strokeWeight(1);
+    fill(255, 255, 255, 100);
     textAlign(RIGHT, CENTER);
     textSize(32);
-    text(`Saques: ${lootedFood}`, width - 10, 25);
-    textSize(32);
-    text(`Algorithm: ${searchAlgorithms[ddAlgorithm.selected()]}`, width - 10, height - 30);
+    text(`Saques: ${lootedFood}`, width - 10, 30);
+    // textAlign(RIGHT, CENTER);
+    // textSize(32);
+    // text(`Algorithm: ${searchAlgorithms[ddAlgorithm.selected()]}`, width - 10, cellSize * rows + 30);
     pop();
 
     // Se o jogo estiver pausado, desenha uma sobreposição e para a execução do frame.
@@ -474,6 +533,10 @@ function draw() {
  * Reseta o jogo e gera um novo mapa com uma nova seed de ruído.
  */
 function btNewMapPressed() {
+    let currentMapSize = slMapSize.value();
+    cols = floor(10 * currentMapSize);
+    rows = floor(cols * 0.66666);
+    cellSize = canvasWidthLimit / cols;
     noiseSeed(random(10000));
     grid = new Grid(cols, rows, cellSize);
     if (!grid) {
@@ -684,7 +747,7 @@ function getDelayTime() {
  * @returns {number} Um valor entre 0.01 e 1 para a velocidade.
  */
 function getSpeedMovement() {
-    return map(slSpeed.value(), minDelayTime, maxDelayTime, 0.01, 1);
+    return map(slSpeed.value(), minDelayTime, maxDelayTime, 0.01, 0.5);
 }
 
 /**
@@ -730,21 +793,24 @@ function drawSearch(index) {
                 push();
                 if (cbDebugMode.checked()) {
                     // No modo debug, desenha quadrados coloridos.
+                    push();
+                    rectMode(CENTER);
                     if (cell.state === 'frontier') {
                         fill(70, 0, 150);
-                        square(cell.x * cellSize, cell.y * cellSize, cellSize);
+                        square(gridToPixel(cell.x), gridToPixel(cell.y), slObjectSize.value() *cellSize);
                     } else if (cell.state === 'visited') {
                         fill(150, 50, 255);
-                        square(cell.x * cellSize, cell.y * cellSize, cellSize);
+                        square(gridToPixel(cell.x), gridToPixel(cell.y), slObjectSize.value() * cellSize);
                     }
+                    pop();
                 } else {
                     // No modo normal, desenha imagens.
                     translate(gridToPixel(i), gridToPixel(j));
                     rotate(random(0.09));
                     if (cell.state === 'frontier') {
-                        image(defaultFrontierImg, 0, 0, cellSize - 20, cellSize - 20);
+                        image(defaultFrontierImg, 0, 0, slObjectSize.value() * cellSize, slObjectSize.value() * cellSize);
                     } else if (cell.state === 'visited') {
-                        image(defaultExploredImg, 0, 0, cellSize - 20, cellSize - 20);
+                        image(defaultExploredImg, 0, 0, slObjectSize.value() * cellSize, slObjectSize.value() * cellSize);
                     }
                 }
                 pop();
@@ -764,26 +830,32 @@ function drawPath(limit) {
         limit = pathToFood.length - 1;
     }
 
+    push();
+    rectMode(CENTER);
     // Primeiro, preenche o fundo do caminho com a cor do terreno.
     for (let i = 0; i < limit; i++) {
         let cell = pathToFood[i];
         fill(cell.terrain.color);
-        square(cell.x * cellSize, cell.y * cellSize, cellSize);
+        square(gridToPixel(cell.x), gridToPixel(cell.y), cellSize);
     }
+    pop();
 
     // Depois, desenha as pegadas sobre o caminho.
     for (let i = 0; i < limit; i++) {
         let cell = pathToFood[i];
         if (cbDebugMode.checked()) {
+            push();
+            rectMode(CENTER);
             // No modo debug, desenha quadrados pretos.
             fill(0, 0, 0);
-            square(cell.x * cellSize, cell.y * cellSize, cellSize);
+            square(gridToPixel(cell.x), gridToPixel(cell.y), slObjectSize.value() * cellSize);
+            pop();
         } else {
             // No modo normal, desenha a imagem da pegada com a rotação correta.
             push();
             translate(gridToPixel(cell.x), gridToPixel(cell.y));
             rotate(stepRotation[i]);
-            image(defaultStepImg, 0, 0, cellSize - 20, cellSize - 20);
+            image(defaultStepImg, 0, 0, slObjectSize.value() * cellSize, slObjectSize.value() * cellSize);
             pop();
         }
     }
