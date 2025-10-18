@@ -113,8 +113,8 @@ class Agent {
      * @returns {boolean}
      */
     isOver(mx, my) {
-        const pos = this.pixelPos;
-        let d = dist(mx, my, pos.x, pos.y);
-        return d < this.size / 2;
+        console.log(`mx: ${mx}, my: ${my} -- gmx: ${pixelToGrid(mx)}, gmy: ${pixelToGrid(my)}`);
+        let d = dist(pixelToGrid(mx), pixelToGrid(my), this.pos.x, this.pos.y);
+        return d === 0;
     }
 }
