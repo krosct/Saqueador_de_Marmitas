@@ -16,6 +16,16 @@ class Food {
     }
 
     /**
+     * Define a posição lógica e visual da comida.
+     * Use esta função para "teleportar" ou posicionar a comida.
+     * @param {number} gridX Nova posição X no grid.
+     * @param {number} gridY Nova posição Y no grid.
+     */
+    setPosition(gridX, gridY) {
+        this.pos.set(gridX, gridY);
+    }
+
+    /**
      * Desenha a comida no canvas.
      * Esta função converte a posição do grid para pixels antes de desenhar.
      */
@@ -39,5 +49,17 @@ class Food {
      */
     node(grid) {
         return grid.grid[this.pos.y][this.pos.x];
+    }
+
+    /**
+     * Verifica se o mouse está sobre a posição visual da comida.
+     * @param {number} mx Posição X do mouse.
+     * @param {number} my Posição Y do mouse.
+     * @returns {boolean}
+     */
+    isOver(mx, my) {
+        console.log(`mx: ${mx}, my: ${my} -- gmx: ${pixelToGrid(mx)}, gmy: ${pixelToGrid(my)}`);
+        let d = dist(pixelToGrid(mx), pixelToGrid(my), this.pos.x, this.pos.y);
+        return d === 0;
     }
 }
