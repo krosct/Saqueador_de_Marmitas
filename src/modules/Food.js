@@ -11,7 +11,7 @@ class Food {
      */
     constructor(gridX, gridY, size, img) {
         this.pos = createVector(gridX, gridY);
-        this.size = size - 5;
+        this.size = size;
         this.img = img;
     }
 
@@ -22,10 +22,13 @@ class Food {
     show() {
         // Converte a posição do grid para a coordenada central em pixels.
         if (cbDebugMode.checked()) {
-            fill(200, 200, 0);
-            square(this.pos.x * cellSize, this.pos.y * cellSize, cellSize);
+            push();
+            rectMode(CENTER);
+            fill(255, 255, 0);
+            square(gridToPixel(this.pos.x), gridToPixel(this.pos.y), slObjectSize.value() * cellSize);
+            pop();
         } else {
-            image(this.img, gridToPixel(this.pos.x), gridToPixel(this.pos.y), this.size, this.size);
+            image(this.img, gridToPixel(this.pos.x), gridToPixel(this.pos.y), slObjectSize.value() * this.size, slObjectSize.value() * this.size);
         }
     }
 
