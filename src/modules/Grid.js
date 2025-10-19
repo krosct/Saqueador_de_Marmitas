@@ -196,8 +196,10 @@ class Grid {
 
                     // Draw the terrain image aligned to the top-left corner of the cell
                     if (terrainImage) {
-                        imageMode(CORNER); // Ensure we're using corner mode (top-left alignment)
+                        push(); // Save the current drawing state
+                        imageMode(CORNER); // Use corner mode for terrain (top-left alignment)
                         image(terrainImage, x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
+                        pop(); // Restore the previous drawing state (including imageMode(CENTER))
                     }
 
                     // Overlay semi-transparent colors for algorithm states
