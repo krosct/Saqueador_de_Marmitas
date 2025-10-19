@@ -198,7 +198,8 @@ function greedyBestFirstSearch(initialGrid, startNode, goalNode, heuristic) {
                 neighbor.h = heuristic(neighbor, goalNode);
                 frontier.enqueue(neighbor, neighbor.h);
 
-                const newGrid = initialGrid.copy();
+                const lastGrid = gridHistory[gridHistory.length - 1];
+                const newGrid = lastGrid.copy();
                 newGrid.getNode(neighbor.x, neighbor.y).state = 'frontier';
                 newGrid.getNode(current.x, current.y).state = 'visited';
                 gridHistory.push(newGrid);
