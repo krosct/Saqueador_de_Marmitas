@@ -35,8 +35,9 @@ function breadthFirstSearch(initialGrid, startNode, goalNode) {
                 neighbor.parent = current;
                 frontier.push(neighbor);
 
-                // Cria uma nova cópia do grid para este passo
-                const newGrid = initialGrid.copy();
+                // Cria uma nova cópia do último estado do grid
+                const lastGrid = gridHistory[gridHistory.length - 1];
+                const newGrid = lastGrid.copy();
                 newGrid.getNode(neighbor.x, neighbor.y).state = 'frontier';
                 newGrid.getNode(current.x, current.y).state = 'visited';
                 gridHistory.push(newGrid);
@@ -87,8 +88,9 @@ function depthFirstSearch(initialGrid, startNode, goalNode) {
                     neighbor.parent = current;
                     frontier.push(neighbor);
 
-                    // Cria uma nova cópia do grid para este passo
-                    const newGrid = initialGrid.copy();
+                    // Cria uma nova cópia do último estado do grid
+                    const lastGrid = gridHistory[gridHistory.length - 1];
+                    const newGrid = lastGrid.copy();
                     newGrid.getNode(neighbor.x, neighbor.y).state = 'frontier';
                     newGrid.getNode(current.x, current.y).state = 'visited';
                     gridHistory.push(newGrid);
