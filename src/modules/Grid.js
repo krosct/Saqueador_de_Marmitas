@@ -36,19 +36,12 @@ class Grid {
         const terrainOffsetX = 0; //random(1000);
         const terrainOffsetY = 0; //random(1000);
         
-        const waterThreshold = 0.3;
-        const swampThreshold = 0.4;
-
         // PHASE 2: Add obstacles as a separate layer with more dispersion
         // Higher scale = smaller, more scattered, dispersed patterns
         const obstacleScale = 0.4;
         const obstacleOffsetX = random(1000);
         const obstacleOffsetY = random(1000);
         
-        // Obstacle density threshold - adjust this to control obstacle quantity
-        // Higher threshold = fewer obstacles
-        const obstacleThreshold = 0.6;
-
         for (let y = 0; y < this.rows; y++) {
             this.grid[y] = []; // Initialize the row
             for (let x = 0; x < this.cols; x++) {
@@ -62,9 +55,9 @@ class Grid {
 
                 // Map noise to base terrain types (no obstacles yet)
                 // Adjusted thresholds to create more balanced terrain distribution
-                if (terrainNoise < waterThreshold) {
+                if (terrainNoise < 0.3) {
                     terrainType = Terrain.WATER;
-                } else if (terrainNoise < swampThreshold) {
+                } else if (terrainNoise < 0.4) {
                     terrainType = Terrain.SWAMP;
                 } else {
                     terrainType = Terrain.SAND;
@@ -74,6 +67,11 @@ class Grid {
                 this.grid[y][x] = new Node(x, y, terrainType);
             }
         }
+
+        
+        // Obstacle density threshold - adjust this to control obstacle quantity
+        // Higher threshold = fewer obstacles
+        const obstacleThreshold = 0.6;
 
         for (let y = 0; y < this.rows; y++) {
             for (let x = 0; x < this.cols; x++) {
@@ -143,34 +141,87 @@ class Grid {
      * Draws the entire grid onto the p5.js canvas.
      * It colors each node based on its state ('frontier', 'visited', etc.)
      * or its natural terrain color if its state is 'default'.
+     * If debug mode is off, it uses terrain images instead of colors.
      */
     draw() {
+        const isDebugMode = cbDebugMode.checked();
+
         for (let y = 0; y < this.rows; y++) {
             for (let x = 0; x < this.cols; x++) {
                 const node = this.grid[y][x];
-                let nodeColor;
 
-                // The state property takes precedence for coloring.
-                switch (node.state) {
-                    case 'frontier':
-                        nodeColor = '#FFFF00'; // Yellow
-                        break;
-                    case 'visited':
-                        nodeColor = '#ADD8E6'; // Light Blue
-                        break;
-                    case 'path':
-                        nodeColor = '#FF00FF'; // Magenta
-                        break;
-                    default:
-                        // If the state is 'default', use the terrain's natural color.
-                        nodeColor = node.terrain.color;
-                        break;
+                if (isDebugMode) {
+                    // Debug mode: use colors for visualization
+                    let nodeColor;
+
+                    // The state property takes precedence for coloring.
+                    switch (node.state) {
+                        case 'frontier':
+                            nodeColor = '#FFFF00'; // Yellow
+                            break;
+                        case 'visited':
+                            nodeColor = '#ADD8E6'; // Light Blue
+                            break;
+                        case 'path':
+                            nodeColor = '#FF00FF'; // Magenta
+                            break;
+                        default:
+                            // If the state is 'default', use the terrain's natural color.
+                            nodeColor = node.terrain.color;
+                            break;
+                    }
+
+                    fill(nodeColor);
+                    stroke(200); // Light grey border for cells
+                    strokeWeight(0.5);
+                    rect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
+                } else {
+                    // Normal mode: use terrain images
+                    let terrainImage;
+
+                    switch (node.terrain.name) {
+                        case 'sand':
+                            terrainImage = sand0;
+                            break;
+                        case 'water':
+                            terrainImage = water0;
+                            break;
+                        case 'swamp':
+                            terrainImage = swamp0;
+                            break;
+                        case 'obstacle':
+                            terrainImage = obstacle0;
+                            break;
+                    }
+
+                    // Draw the terrain image aligned to the top-left corner of the cell
+                    if (terrainImage) {
+                        imageMode(CORNER); // Ensure we're using corner mode (top-left alignment)
+                        image(terrainImage, x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
+                    }
+
+                    // Overlay semi-transparent colors for algorithm states
+                    if (node.state !== 'default') {
+                        let overlayColor;
+                        switch (node.state) {
+                            case 'frontier':
+                                overlayColor = color(255, 255, 0, 150); // Yellow with transparency
+                                break;
+                            case 'visited':
+                                overlayColor = color(173, 216, 230, 150); // Light Blue with transparency
+                                break;
+                            case 'path':
+                                overlayColor = color(255, 0, 255, 200); // Magenta with transparency
+                                break;
+                        }
+                        
+                        if (overlayColor) {
+                            fill(overlayColor);
+                            noStroke();
+                            rect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
+                        }
+                    }
                 }
-
-                fill(nodeColor);
-                stroke(200); // Light grey border for cells
-                strokeWeight(0.5);
-                rect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
             }
         }
     }

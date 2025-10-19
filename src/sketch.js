@@ -185,6 +185,12 @@ function preload() {
     frontierImg1 = loadImage('src/img/frontier1.png');
     stepImg1 = loadImage('src/img/step1.png');
 
+    // Terrain sprites
+    sand0 = loadImage('src/img/sand0.png');
+    water0 = loadImage('src/img/water0.png');
+    swamp0 = loadImage('src/img/swamp0.png');
+    obstacle0 = loadImage('src/img/obstacle0.png');
+
 }
 
 /**
