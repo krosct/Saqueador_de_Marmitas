@@ -50,16 +50,16 @@
 
 **Foco:** Implementar os algoritmos de busca não-informada e as funções de heurística que servirão de base para os outros algoritmos.
 
--   `[ ]` **Módulo `heuristics.js`**
-    -   `[ ]` Criar o arquivo `heuristics.js`.
-    -   `[ ]` Implementar e exportar a função `manhattanDistance(nodeA, nodeB)`.
-    -   `[ ]` Implementar e exportar a função `euclideanDistance(nodeA, nodeB)`.
+-   `[X]` **Módulo `heuristics.js`**
+    -   `[X]` Criar o arquivo `heuristics.js`.
+    -   `[X]` Implementar e exportar a função `manhattanDistance(nodeA, nodeB)`.
+    -   `[X]` Implementar e exportar a função `euclideanDistance(nodeA, nodeB)`.
 
--   `[ ]` **Módulo `search.js` (Buscas Não-Informadas)**
-    -   `[ ]` Implementar o algoritmo **BFS (Busca em Largura)**.
-        -   `[ ]` Garantir que a função siga o "contrato" e retorne `{ finalPath, gridHistory }`.
-    -   `[ ]` Implementar o algoritmo **DFS (Busca em Profundidade)**.
-        -   `[ ]` Garantir que a função também retorne `{ finalPath, gridHistory }`.
+-   `[X]` **Módulo `search.js` (Buscas Não-Informadas)**
+    -   `[X]` Implementar o algoritmo **BFS (Busca em Largura)**.
+        -   `[X]` Garantir que a função siga o "contrato" e retorne `{ finalPath, gridHistory }`.
+    -   `[X]` Implementar o algoritmo **DFS (Busca em Profundidade)**.
+        -   `[X]` Garantir que a função também retorne `{ finalPath, gridHistory }`.
 
 ## Integrante 4: Henrique César
 
