@@ -143,7 +143,7 @@ let ddSkin; // Menu dropdown para selecionar a skin.
 /** @type {string} */
 let previuosSkin = '-1'; // Armazena a skin selecionada anteriormente para detectar mudanças.
 /** @type {Array<string>} */
-let searchAlgorithms = ['Uniform Cost', 'Greedy Best First']; // Nomes dos algoritmos disponíveis.
+let searchAlgorithms = ['Uniform Cost', 'Greedy Best First', 'BFS', 'DFS']; // Nomes dos algoritmos disponíveis.
 /** @type {Array<string>} */
 let skins = ['Coloricleide', 'Grayilson']; // Nomes das skins disponíveis.
 /** @type {p5.Element} */
@@ -246,7 +246,6 @@ function setup() {
     for (let i = 0; i < searchAlgorithms.length; i++) {
         ddAlgorithm.option(searchAlgorithms[i], i);
     }
-    ddAlgorithm.disable('1'); // Desabilita temporariamente o algoritmo Greedy.
     heightEtc += 10;
 
     lbAdviceAlgorithm = createP('The algorithm will be applied in the next search.');
@@ -402,6 +401,10 @@ function draw() {
                 searchRegistry = uniformCostSearch(grid, agent.node(grid), food.node(grid));
             } else if (ddAlgorithm.selected() === '1') {
                 searchRegistry = greedyBestFirstSearch(grid, agent.node(grid), food.node(grid), null);
+            } else if (ddAlgorithm.selected() === '2') {
+                searchRegistry = breadthFirstSearch(grid, agent.node(grid), food.node(grid));
+            } else if (ddAlgorithm.selected() === '3') {
+                searchRegistry = depthFirstSearch(grid, agent.node(grid), food.node(grid));
             } else {
                 console.error(`Algoritmo de busca indefinido: ${ddAlgorithm.selected()} !`);
                 ERROR = true;
