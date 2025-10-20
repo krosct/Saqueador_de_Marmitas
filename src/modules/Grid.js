@@ -181,16 +181,16 @@ class Grid {
 
                     switch (node.terrain.name) {
                         case 'sand':
-                            terrainImage = sand0;
+                            terrainImage = defaultSandImg;
                             break;
                         case 'water':
-                            terrainImage = water0;
+                            terrainImage = defaultWaterImg;
                             break;
                         case 'swamp':
-                            terrainImage = swamp0;
+                            terrainImage = defaultSwampImg;
                             break;
                         case 'obstacle':
-                            terrainImage = obstacle0;
+                            terrainImage = defaultObstacleImg;
                             break;
                     }
 
