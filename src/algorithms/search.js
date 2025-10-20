@@ -23,24 +23,31 @@ function breadthFirstSearch(initialGrid, startNode, goalNode) {
     while (frontier.length > 0) {
         const current = frontier.shift();  // Remove o primeiro elemento (FIFO)
         
+        // Marca imediatamente como explorado assim que é retirado da fronteira
+        explored.add(current);
+        
+        // Cria snapshot mostrando o nó sendo processado (mudando de frontier para visited)
+        const lastGrid = gridHistory[gridHistory.length - 1];
+        let newGrid = lastGrid.copy();
+        newGrid.getNode(current.x, current.y).state = 'visited';
+        gridHistory.push(newGrid);
+        
         if (current === goalNode) {
             const finalPath = reconstructPath(current);
             return { finalPath, gridHistory };
         }
-
-        explored.add(current);
         
+        // Processa vizinhos e adiciona à fronteira
         for (const neighbor of initialGrid.getNeighbors(current)) {
             if (!explored.has(neighbor) && !frontier.includes(neighbor)) {
                 neighbor.parent = current;
                 frontier.push(neighbor);
 
-                // Cria uma nova cópia do último estado do grid
-                const lastGrid = gridHistory[gridHistory.length - 1];
-                const newGrid = lastGrid.copy();
-                newGrid.getNode(neighbor.x, neighbor.y).state = 'frontier';
-                newGrid.getNode(current.x, current.y).state = 'visited';
-                gridHistory.push(newGrid);
+                // Cria novo snapshot para cada vizinho adicionado à fronteira
+                const lastGrid2 = gridHistory[gridHistory.length - 1];
+                const newGrid2 = lastGrid2.copy();
+                newGrid2.getNode(neighbor.x, neighbor.y).state = 'frontier';
+                gridHistory.push(newGrid2);
             }
         }
     }
@@ -73,9 +80,10 @@ function depthFirstSearch(initialGrid, startNode, goalNode) {
         const current = frontier.pop();  // Retira o último (LIFO)
 
         if (!explored.has(current)) {
+            // Marca imediatamente como explorado assim que é retirado da fronteira
             explored.add(current);
 
-            // Marca o nó atual como visitado no grid
+            // Cria snapshot mostrando o nó sendo processado (mudando de frontier para visited)
             const lastGrid = gridHistory[gridHistory.length - 1];
             const newGrid = lastGrid.copy();
             newGrid.getNode(current.x, current.y).state = 'visited';
@@ -94,11 +102,11 @@ function depthFirstSearch(initialGrid, startNode, goalNode) {
                     neighbor.parent = current;
                     frontier.push(neighbor);
 
-                    // Marca o vizinho como fronteira no grid
-                    const lastGrid = gridHistory[gridHistory.length - 1];
-                    const newGrid = lastGrid.copy();
-                    newGrid.getNode(neighbor.x, neighbor.y).state = 'frontier';
-                    gridHistory.push(newGrid);
+                    // Cria novo snapshot para cada vizinho adicionado à fronteira
+                    const lastGrid2 = gridHistory[gridHistory.length - 1];
+                    const newGrid2 = lastGrid2.copy();
+                    newGrid2.getNode(neighbor.x, neighbor.y).state = 'frontier';
+                    gridHistory.push(newGrid2);
                 }
             }
         }
@@ -133,12 +141,19 @@ function uniformCostSearch(initialGrid, startNode, goalNode) {
     while (!frontier.isEmpty()) {
         const current = frontier.dequeue();
         
+        // Marca imediatamente como explorado assim que é retirado da fronteira
+        explored.add(current);
+        
+        // Cria snapshot mostrando o nó sendo processado (mudando de frontier para visited)
+        const lastGrid = gridHistory[gridHistory.length - 1];
+        const newGrid = lastGrid.copy();
+        newGrid.getNode(current.x, current.y).state = 'visited';
+        gridHistory.push(newGrid);
+        
         if (current === goalNode) {
             const finalPath = reconstructPath(current);
             return { finalPath, gridHistory };
         }
-
-        explored.add(current);
         
         for (const neighbor of initialGrid.getNeighbors(current)) {
             const newG = current.g + neighbor.terrain.cost;
@@ -148,12 +163,11 @@ function uniformCostSearch(initialGrid, startNode, goalNode) {
                 neighbor.parent = current;
                 frontier.enqueue(neighbor, newG);
 
-                // const newGrid = initialGrid.copy();
-                const lastGrid = gridHistory[gridHistory.length - 1]; 
-                const newGrid = lastGrid.copy();
-                newGrid.getNode(neighbor.x, neighbor.y).state = 'frontier';
-                newGrid.getNode(current.x, current.y).state = 'visited';
-                gridHistory.push(newGrid);
+                // Cria novo snapshot para cada vizinho adicionado/atualizado na fronteira
+                const lastGrid2 = gridHistory[gridHistory.length - 1];
+                const newGrid2 = lastGrid2.copy();
+                newGrid2.getNode(neighbor.x, neighbor.y).state = 'frontier';
+                gridHistory.push(newGrid2);
             }
         }
     }
@@ -191,12 +205,19 @@ function greedyBestFirstSearch(initialGrid, startNode, goalNode, heuristic) {
     while (!frontier.isEmpty()) {
         const current = frontier.dequeue();
         
+        // Marca imediatamente como explorado assim que é retirado da fronteira
+        explored.add(current);
+        
+        // Cria snapshot mostrando o nó sendo processado (mudando de frontier para visited)
+        const lastGrid = gridHistory[gridHistory.length - 1];
+        const newGrid = lastGrid.copy();
+        newGrid.getNode(current.x, current.y).state = 'visited';
+        gridHistory.push(newGrid);
+        
         if (current === goalNode) {
             const finalPath = reconstructPath(current);
             return { finalPath, gridHistory };
         }
-
-        explored.add(current);
         
         for (const neighbor of initialGrid.getNeighbors(current)) {
             if (!explored.has(neighbor)) {
@@ -204,11 +225,11 @@ function greedyBestFirstSearch(initialGrid, startNode, goalNode, heuristic) {
                 neighbor.h = heuristic(neighbor, goalNode);
                 frontier.enqueue(neighbor, neighbor.h);
 
-                const lastGrid = gridHistory[gridHistory.length - 1];
-                const newGrid = lastGrid.copy();
-                newGrid.getNode(neighbor.x, neighbor.y).state = 'frontier';
-                newGrid.getNode(current.x, current.y).state = 'visited';
-                gridHistory.push(newGrid);
+                // Cria novo snapshot para cada vizinho adicionado à fronteira
+                const lastGrid2 = gridHistory[gridHistory.length - 1];
+                const newGrid2 = lastGrid2.copy();
+                newGrid2.getNode(neighbor.x, neighbor.y).state = 'frontier';
+                gridHistory.push(newGrid2);
             }
         }
     }
