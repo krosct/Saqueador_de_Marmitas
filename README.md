@@ -38,11 +38,11 @@ O programa demonstra visualmente a "inteligência" do algoritmo, destacando os n
 
 | Nome do Integrante | Atividade | GitHub |
 | --- | --- | --- |
-| Davi Brilhante | Grid e Node | [Link](https://github.com/Davi-SB) |
-| Gabriel Monteiro | Animação e Lógica | [Link](https://github.com/krosct) |
-| Heitor Higino | Algoritmo A* e Menu | [Link](https://placebacon.net/400/300) |
-| Henrique César | Algoritmos de Busca Gulosos e Uniformes | [Link](https://github.com/SapoSopa) |
-| João Pedro | BFS, DFS e Heurísticas | [Link](https://placebacon.net/400/300) |
+| <img src="https://avatars.githubusercontent.com/u/135074052?v=4" width="50" height="50"><br>Davi Brilhante | Grid e Node | [<img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" height="50">](https://github.com/Davi-SB) |
+| <img src="https://avatars.githubusercontent.com/u/140334417?v=4" width="50" height="50"><br>Gabriel Monteiro | Animação e Lógica | [<img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" height="50">](https://github.com/krosct) |
+| <img src="https://avatars.githubusercontent.com/u/131478981?v=4" width="50" height="50"><br>Heitor Higino | Algoritmo A* e Menu | [<img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" height="50">](https://github.com/HeitorCordeiro) |
+| <img src="https://avatars.githubusercontent.com/u/129231720?v=4" width="50" height="50"><br>Henrique César | Algoritmos de Busca Gulosos e Uniformes | [<img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" height="50">](https://github.com/SapoSopa) |
+| <img src="https://avatars.githubusercontent.com/u/89039575?v=4" width="50" height="50"><br>João Pedro | BFS, DFS e Heurísticas | [<img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white" height="50">](https://github.com/jpcm2) |
 
 ## 📂 Estrutura do Projeto
 
