@@ -20,7 +20,7 @@ const Terrain = {
     SWAMP: {
     name: 'swamp',
         cost: 5,
-        color: '#548107ff', //
+        color: '#663c2cff', //
         isObstacle: false,
     },
     WATER: {
