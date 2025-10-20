@@ -44,6 +44,14 @@ let defaultExploredImg; // Imagem padrão (ou atual) para células exploradas.
 let defaultFrontierImg; // Imagem padrão (ou atual) para células na fronteira da busca.
 /** @type {p5.Image} */
 let defaultStepImg; // Imagem padrão (ou atual) para as pegadas do caminho.
+/** @type {p5.Image} */
+let defaultSandImg; // Imagem padrão (ou atual) para areia.
+/** @type {p5.Image} */
+let defaultWaterImg; // Imagem padrão (ou atual) para agua.
+/** @type {p5.Image} */
+let defaultSwampImg; // Imagem padrão (ou atual) para atoleiro.
+/** @type {p5.Image} */
+let defaultObstacleImg; // Imagem padrão (ou atual) para obstaculo.
 
 // ? --- Variáveis para a Skin 0 ("Grayilson") ---
 /** @type {p5.Image} */
@@ -55,7 +63,7 @@ let exploredImg0;
 /** @type {p5.Image} */
 let frontierImg0;
 /** @type {p5.Image} */
-let stepImg10;
+let stepImg0;
 
 // ? --- Variáveis para a Skin 1 ("Coloricleide") ---
 /** @type {p5.Image} */
@@ -68,6 +76,36 @@ let exploredImg1;
 let frontierImg1;
 /** @type {p5.Image} */
 let stepImg1;
+
+// ? --- Variáveis para o Terreno 0 ("Elvilmar") ---
+/** @type {p5.Image} */
+let sand0;
+/** @type {p5.Image} */
+let water0;
+/** @type {p5.Image} */
+let swamp0;
+/** @type {p5.Image} */
+let obstacle0;
+
+// ? --- Variáveis para o Terreno 1 ("Flatizina") ---
+/** @type {p5.Image} */
+let sand1;
+/** @type {p5.Image} */
+let water1;
+/** @type {p5.Image} */
+let swamp1;
+/** @type {p5.Image} */
+let obstacle1;
+
+// ? --- Variáveis para o Terreno 2 ("Enderton") ---
+/** @type {p5.Image} */
+let sand2;
+/** @type {p5.Image} */
+let water2;
+/** @type {p5.Image} */
+let swamp2;
+/** @type {p5.Image} */
+let obstacle2;
 
 // * --- VARIÁVEIS GLOBAIS DO PROJETO ---
 
@@ -140,12 +178,20 @@ let lbAdviceAlgorithm; // Rótulo do aviso do algoritmo aplicado.
 let lbSkin; // Rótulo para o dropdown de skins.
 /** @type {p5.Element} */
 let ddSkin; // Menu dropdown para selecionar a skin.
+/** @type {p5.Element} */
+let lbTerrain; // Rótulo para o dropdown de terrenos.
+/** @type {p5.Element} */
+let ddTerrain; // Menu dropdown para selecionar o terreno.
 /** @type {string} */
 let previuosSkin = '-1'; // Armazena a skin selecionada anteriormente para detectar mudanças.
+/** @type {string} */
+let previuosTerrain = '-1'; // Armazena o terreno selecionado anteriormente para detectar mudanças.
 /** @type {Array<string>} */
 let searchAlgorithms = ['Uniform Cost', 'Greedy Best First (Manhattan)', 'Greedy Best First (Euclidean)', 'BFS', 'DFS']; // Nomes dos algoritmos disponíveis.
 /** @type {Array<string>} */
 let skins = ['Coloricleide', 'Grayilson']; // Nomes das skins disponíveis.
+/** @type {Array<string>} */
+let terrains = ['Elvilmar', 'Flatizina', 'Enderton']; // Nomes dos terrenos disponíveis.
 /** @type {p5.Element} */
 let lbMapSize; // Rótulo para o slider do tamanho do mapa.
 /** @type {p5.Element} */
@@ -176,7 +222,7 @@ function preload() {
     foodImg0 = loadImage('src/img/food0.png');
     exploredImg0 = loadImage('src/img/explored0.png');
     frontierImg0 = loadImage('src/img/frontier0.png');
-    stepImg10 = loadImage('src/img/step0.png');
+    stepImg0 = loadImage('src/img/step0.png');
 
     // Pack Grayilson
     agentImg1 = loadImage('src/img/agent1.png');
@@ -185,11 +231,23 @@ function preload() {
     frontierImg1 = loadImage('src/img/frontier1.png');
     stepImg1 = loadImage('src/img/step1.png');
 
-    // Terrain sprites
+    // Pack Elvilmar
     sand0 = loadImage('src/img/sand0.png');
     water0 = loadImage('src/img/water0.png');
     swamp0 = loadImage('src/img/swamp0.png');
     obstacle0 = loadImage('src/img/obstacle0.png');
+
+    // Terrain Flatizina
+    sand1 = loadImage('src/img/sand1.png');
+    water1 = loadImage('src/img/water1.png');
+    swamp1 = loadImage('src/img/swamp1.png');
+    obstacle1 = loadImage('src/img/obstacle1.png');
+
+    // Terrain Enderton
+    sand2 = loadImage('src/img/sand2.png');
+    water2 = loadImage('src/img/water2.png');
+    swamp2 = loadImage('src/img/swamp2.png');
+    obstacle2 = loadImage('src/img/obstacle2.png');
 
 }
 
@@ -264,6 +322,17 @@ function setup() {
     }
     heightEtc += 30;
 
+    lbTerrain = createP('Terrain:');
+    lbTerrain.position(width + 10, heightEtc);
+    heightEtc += 40;
+
+    ddTerrain = createSelect();
+    ddTerrain.position(width + 10, heightEtc);
+    for (let i = 0; i < terrains.length; i++) {
+        ddTerrain.option(terrains[i], i);
+    }
+    heightEtc += 30;
+
     lbMapSize = createP('Map Size:');
     lbMapSize.position(width + 10, heightEtc);
     heightEtc += 30;
@@ -297,7 +366,13 @@ function setup() {
     defaultFoodImg = foodImg0;
     defaultExploredImg = exploredImg0;
     defaultFrontierImg = frontierImg0;
-    defaultStepImg = stepImg10;
+    defaultStepImg = stepImg0;
+
+    // Define as imagens padrão iniciais para o terreno.
+    defaultSandImg = sand0;
+    defaultWaterImg = water0;
+    defaultSwampImg = swamp0;
+    defaultObstacleImg = obstacle0;
     
     // Exibe informações de depuração no console se o modo estiver ativo.
     if (cbDebugMode.checked()) {
@@ -333,7 +408,7 @@ function draw() {
             defaultFoodImg = foodImg0;
             defaultExploredImg = exploredImg0;
             defaultFrontierImg = frontierImg0;
-            defaultStepImg = stepImg10;
+            defaultStepImg = stepImg0;
         } else if (previuosSkin === '1') {
             agent.img = agentImg1;
             food.img = foodImg1;
@@ -342,6 +417,34 @@ function draw() {
             defaultExploredImg = exploredImg1;
             defaultFrontierImg = frontierImg1;
             defaultStepImg = stepImg1;
+        }
+    }
+
+    // Verifica se a skin selecionada no menu dropdown mudou.
+    if (ddTerrain.selected() !== previuosTerrain) {
+
+        if (cbDebugMode.checked()) {
+            console.log(`Terreno trocado de ${terrains[previuosTerrain]} para ${terrains[ddTerrain.selected()]}`);
+        }
+        
+        previuosTerrain = ddTerrain.selected();
+
+        // Atualiza as imagens do agente, da comida e as imagens padrão de acordo com a skin escolhida.
+        if (previuosTerrain === '0') {
+            defaultSandImg = sand0;
+            defaultWaterImg = water0;
+            defaultSwampImg = swamp0;
+            defaultObstacleImg = obstacle0;
+        } else if (previuosTerrain === '1') {
+            defaultSandImg = sand1;
+            defaultWaterImg = water1;
+            defaultSwampImg = swamp1;
+            defaultObstacleImg = obstacle1;
+        } else if (previuosTerrain === '2') {
+            defaultSandImg = sand2;
+            defaultWaterImg = water2;
+            defaultSwampImg = swamp2;
+            defaultObstacleImg = obstacle2;
         }
     }
 
@@ -520,7 +623,7 @@ function draw() {
     push();
     stroke(150);
     strokeWeight(1);
-    fill(255, 255, 255, 100);
+    fill(255, 255, 255, 150);
     textAlign(RIGHT, CENTER);
     textSize(32);
     text(`Saques: ${lootedFood}`, width - 10, 30);
@@ -859,11 +962,31 @@ function drawPath(limit) {
 
     push();
     rectMode(CENTER);
+    strokeWeight(0);
     // Primeiro, preenche o fundo do caminho com a cor do terreno.
     for (let i = 0; i < limit; i++) {
         let cell = pathToFood[i];
-        fill(cell.terrain.color);
-        square(gridToPixel(cell.x), gridToPixel(cell.y), cellSize);
+
+        if (cbDebugMode.checked()) {
+            fill(cell.terrain.color);
+            square(gridToPixel(cell.x), gridToPixel(cell.y), cellSize);
+            
+        } else {
+            push();
+            translate(gridToPixel(cell.x), gridToPixel(cell.y));
+            let imgToPaint;
+            if (cell.terrain.name === 'sand') {
+                imgToPaint = defaultSandImg;
+            } else if (cell.terrain.name === 'swamp') {
+                imgToPaint = defaultSwampImg;
+            } else if (cell.terrain.name === 'water') {
+                imgToPaint = defaultWaterImg;
+            } else {
+                imgToPaint = defaultSandImg;
+            }
+            image(imgToPaint, 0, 0, cellSize, cellSize);
+            pop();
+        }
     }
     pop();
 
@@ -873,6 +996,7 @@ function drawPath(limit) {
         if (cbDebugMode.checked()) {
             push();
             rectMode(CENTER);
+            strokeWeight(0);
             // No modo debug, desenha quadrados pretos.
             fill(0, 0, 0);
             square(gridToPixel(cell.x), gridToPixel(cell.y), slObjectSize.value() * cellSize);
