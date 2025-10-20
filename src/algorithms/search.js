@@ -61,7 +61,7 @@ function depthFirstSearch(initialGrid, startNode, goalNode) {
     }
 
     const gridHistory = [];
-    const frontier = [startNode];  // Usando array como pilha
+    const frontier = [startNode];  // Pilha para DFS
     const explored = new Set();
     
     // Marca o nó inicial como fronteira no primeiro grid
@@ -70,35 +70,41 @@ function depthFirstSearch(initialGrid, startNode, goalNode) {
     gridHistory.push(initialGridCopy);
 
     while (frontier.length > 0) {
-        const current = frontier.pop();  // Remove o último elemento (LIFO)
-        
-        if (current === goalNode) {
-            const finalPath = reconstructPath(current);
-            return { finalPath, gridHistory };
-        }
+        const current = frontier.pop();  // Retira o último (LIFO)
 
         if (!explored.has(current)) {
             explored.add(current);
-            
-            // Pega os vizinhos em ordem reversa para manter a direção de busca consistente
-            const neighbors = initialGrid.getNeighbors(current).reverse();
-            
+
+            // Marca o nó atual como visitado no grid
+            const lastGrid = gridHistory[gridHistory.length - 1];
+            const newGrid = lastGrid.copy();
+            newGrid.getNode(current.x, current.y).state = 'visited';
+            gridHistory.push(newGrid);
+
+            // Se o nó atual for o objetivo, para aqui e retorna o caminho
+            if (current === goalNode) {
+                const finalPath = reconstructPath(current);
+                return { finalPath, gridHistory };
+            }
+
+            // Expande os vizinhos
+            const neighbors = initialGrid.getNeighbors(current);
             for (const neighbor of neighbors) {
                 if (!explored.has(neighbor) && !frontier.includes(neighbor)) {
                     neighbor.parent = current;
                     frontier.push(neighbor);
 
-                    // Cria uma nova cópia do último estado do grid
+                    // Marca o vizinho como fronteira no grid
                     const lastGrid = gridHistory[gridHistory.length - 1];
                     const newGrid = lastGrid.copy();
                     newGrid.getNode(neighbor.x, neighbor.y).state = 'frontier';
-                    newGrid.getNode(current.x, current.y).state = 'visited';
                     gridHistory.push(newGrid);
                 }
             }
         }
     }
 
+    // Caso não encontre caminho
     return { finalPath: [], gridHistory };
 }
 
