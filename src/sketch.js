@@ -187,7 +187,7 @@ let previuosSkin = '-1'; // Armazena a skin selecionada anteriormente para detec
 /** @type {string} */
 let previuosTerrain = '-1'; // Armazena o terreno selecionado anteriormente para detectar mudanças.
 /** @type {Array<string>} */
-let searchAlgorithms = ['Uniform Cost', 'Greedy Best First (Manhattan)', 'Greedy Best First (Euclidean)', 'BFS', 'DFS']; // Nomes dos algoritmos disponíveis.
+let searchAlgorithms = ['Uniform Cost', 'Greedy Best First (Manhattan)', 'Greedy Best First (Euclidean)', 'BFS', 'DFS', 'A* (Manhattan)', 'A* (Euclidean)']; // Nomes dos algoritmos disponíveis.
 /** @type {Array<string>} */
 let skins = ['Coloricleide', 'Grayilson']; // Nomes das skins disponíveis.
 /** @type {Array<string>} */
@@ -510,7 +510,11 @@ function draw() {
                 searchRegistry = breadthFirstSearch(grid, agent.node(grid), food.node(grid));
             } else if (ddAlgorithm.selected() === '4') {
                 searchRegistry = depthFirstSearch(grid, agent.node(grid), food.node(grid));
-            } else {
+            } else if (ddAlgorithm.selected() === '5') {
+                searchRegistry = aStarSearch(grid, agent.node(grid), food.node(grid), manhattanDistance);
+            } else if (ddAlgorithm.selected() === '6') {
+                searchRegistry = aStarSearch(grid, agent.node(grid), food.node(grid), euclideanDistance); 
+            } else  {
                 console.error(`Algoritmo de busca indefinido: ${ddAlgorithm.selected()} !`);
                 ERROR = true;
                 return;
@@ -888,11 +892,11 @@ function resetGridNodes(gridToReset) {
     for (let y = 0; y < gridToReset.rows; y++) {
         for (let x = 0; x < gridToReset.cols; x++) {
             const node = gridToReset.grid[y][x];
-            node.g = 0;
+            node.g = Infinity;    // custo inicial desconhecido
             node.h = 0;
-            node.f = 0;
+            node.f = Infinity;
             node.parent = null;
-            node.state = 'default'; // Importante para a animação visual
+            node.state = 'default'; // mantém reset visual
         }
     }
 }
